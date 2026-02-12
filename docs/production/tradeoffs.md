@@ -2,7 +2,7 @@
 
 > **Q: Trade-offs you had to choose when doing this challenge (the things you would do different with more time and resources)**
 
-Decisions made for rapid MVP delivery and what we'd do differently with more resources:
+Decisions made for rapid MVP delivery and what we'd do differently with more resources. Note that we have made several [important key decisions](../key-decisions.md) regarding our technical approach.
 
 ## 1. Custom Authentication vs Managed Auth
 **Current:** Custom email/password with HTTP-only cookies
