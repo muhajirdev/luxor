@@ -37,3 +37,10 @@ Instead of reaching for a managed service (Clerk/Auth0) immediately, we built a 
 - **Simplicity**: No external dependencies or complicated redirect flows for the MVP.
 - **Control**: Total control over the session lifecycle and cookie security (HTTP-only).
 - **Extensibility**: Designed to be easily replaced by managed providers as requirements grow.
+
+## 6. Design System (MVP)
+We used **Design Guidelines** optimized for rapid development and AI assistance instead of building a full component library or Storybook from day one.
+
+- **Consistency**: Centralized [Design Guidelines](./design-guidelines.md) ensure a consistent "Editorial Dark Luxury" aesthetic.
+- **Speed**: Allows for rapid prototyping and iteration without the overhead of managing a separate design system package.
+- **Future-Proof**: A full design system (Storybook, reusable library) is planned post-MVP once the core product patterns are stabilized.
