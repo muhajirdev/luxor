@@ -197,6 +197,86 @@ const handleSubmit = async () => {
 2. Worker script bundled with Wrangler
 3. Deployed to Cloudflare edge
 
+## Frontend Component Architecture
+
+We use a **Composition + State Colocation + ID-based Selection** pattern for complex UI components.
+
+**Key Principles:**
+
+1. **State Colocation** - Keep state local unless multiple components need it
+2. **Pass IDs, Not Objects** - Pass `collectionId: string` instead of `collection: Collection` 
+3. **Select Data by ID** - Components use `useCollection(id)` to get their own data
+4. **Composition** - Like Radix UI, build from small composable pieces
+
+**Benefits:**
+
+1. **Flexibility** - Composition lets you rearrange, style, or swap pieces independently without touching internal implementation
+
+2. **No Prop Drilling** - State colocation + context means components get data where they need it, without passing props through 5+ layers
+
+3. **Performance** - Primitive props (`collectionId: string`) work with default `React.memo` comparison—no custom comparison functions needed, and rows don't re-render when other rows expand
+
+**When to use:** Complex tables, lists with 50+ items, deeply nested UIs
+
+**Example:**
+
+```typescript
+// Parent: Pass ID, not object
+function CollectionTable() {
+  const [expandedId, setExpandedId] = useState<string | null>(null) // Local state
+  const { filteredCollections } = useCollections() // Global state
+  
+  return filteredCollections.map(c => (
+    <CollectionRow 
+      key={c.id}
+      collectionId={c.id}  // Pass ID
+      isExpanded={expandedId === c.id}  // Pass boolean
+      onToggle={setExpandedId}  // Stable callback
+    />
+  ))
+}
+
+// Child: Select data by ID
+const CollectionRow = memo(function CollectionRow({ 
+  collectionId, isExpanded, onToggle 
+}) {
+  const collection = useCollection(collectionId) // Select by ID
+  return <tr>...</tr>
+})
+// Default memo works - no custom comparison!
+```
+
+**Reference:** ["Composition Is All You Need" - Fernando Rojo](https://www.youtube.com/watch?v=4KvbVq3Eg5w) — *please watch this video to understand its value*
+
+**Real Example:** See `src/components/collections/CollectionsContext.tsx` for full implementation:
+
+```typescript
+// Context stores data in a Map for O(1) lookup
+function CollectionsProvider({ data }) {
+  const collectionMap = useMemo(() => {
+    const map = new Map<string, Collection>()
+    data.collections.forEach(c => map.set(c.id, c))
+    return map
+  }, [data.collections])
+
+  return (
+    <CollectionsContext.Provider value={{ 
+      getCollection: (id) => map.get(id) 
+    }}>
+      {children}
+    </CollectionsContext.Provider>
+  )
+}
+
+// Components select data by ID
+export function useCollection(id: string) {
+  const { getCollection } = useCollections()
+  return getCollection(id)
+}
+```
+
+**Note:** This pattern could be generalized, but the current implementation is sufficient for our needs.
+
 ## Future Considerations
 
 See `docs/future-improvements/` for:

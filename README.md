@@ -25,6 +25,15 @@ All project decisions, standards, and context are documented:
 
 ## Key Decisions
 
+### Component Architecture Pattern
+We use **State Colocation + ID-based Selection + Composition** for complex UI components:
+
+- **Flexibility**: Composition lets you rearrange, style, or swap pieces independently  
+- **No Prop Drilling**: State colocation + context gets data where it's needed
+- **Performance**: Primitive props work with default `React.memo`—no custom comparison needed
+
+See `docs/architecture.md` and ["Composition Is All You Need" by Fernando Rojo](https://www.youtube.com/watch?v=4KvbVq3Eg5w).
+
 ### Design System (MVP)
 Using [Design Guidelines](./docs/design-guidelines.md) optimized for rapid AI-assisted development. A full design system will be built post-MVP.
 

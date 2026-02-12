@@ -252,6 +252,86 @@ describe('CollectionCard', () => {
 4. Verify imports use `@/` prefix for src files
 5. Ensure no `console.log` in production code (use `console.error` for errors)
 
+## Component Architecture Pattern
+
+For complex UI components (tables, lists with filtering), use the **State Colocation + ID-based Selection + Composition**:
+
+### Key Principles
+
+**1. State Colocation**
+Keep state closest to where it's used. Only use context for truly global/shared state.
+
+```typescript
+// ✅ Good - Local state in component that needs it
+function CollectionTable() {
+  const [expandedId, setExpandedId] = useState<string | null>(null) // Local
+  const { filteredCollections } = useCollections() // Only global state
+  // ...
+}
+```
+
+**2. Pass IDs, Select Data (ID-based Selection)**
+Pass primitive IDs and let components select their own data:
+
+```typescript
+// ✅ Good - pass ID + primitives, no custom comparison needed
+<CollectionRow 
+  collectionId={collection.id}  // string
+  isExpanded={expandedId === collection.id}  // boolean
+  onToggle={handleToggle}  // stable callback
+/>
+
+const CollectionRow = memo(function CollectionRow({ collectionId, isExpanded }) {
+  const collection = useCollection(collectionId) // Select by ID
+  return <tr>...</tr>
+})
+// React.memo default comparison works - no custom function needed!
+```
+
+**3. Composition (Radix UI Pattern)**
+Break into small, composable primitives:
+
+```typescript
+<CollectionTableRoot>
+  <TableHeader>
+    <TableHead>Name</TableHead>
+  </TableHeader>
+  <TableBody>
+    {collections.map(c => <CollectionRow key={c.id} collectionId={c.id} />)}
+  </TableBody>
+</CollectionTableRoot>
+```
+
+### Benefits
+
+1. **Flexibility** - Composition lets you rearrange, style, or swap pieces without touching internals
+2. **No Prop Drilling** - State colocation + context gets data where it's needed
+3. **Performance** - Primitive props work with default `React.memo`—no custom comparison needed
+
+### When to Use
+
+**Use for:**
+- Complex tables with expandable rows
+- Lists with 50+ items
+- Components with deeply nested children
+
+**Skip for:**
+- Simple forms or static content
+- Small lists (< 20 items)
+
+### Avoid Custom Comparison Functions
+
+By passing IDs instead of objects, React's default shallow comparison works:
+- `collectionId`: string (primitive) ✓
+- `isExpanded`: boolean (primitive) ✓
+- `onToggle`: function (stabilized with useCallback) ✓
+
+Only use custom comparison if profiling shows it's needed.
+
+See `docs/architecture.md` for detailed explanation.
+
+**Reference:** ["Composition Is All You Need" - Fernando Rojo at React Universe Conf 2025](https://www.youtube.com/watch?v=4KvbVq3Eg5w)
+
 ## Resources
 
 - [TanStack Start Docs](https://tanstack.com/start/latest)
