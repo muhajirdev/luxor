@@ -29,7 +29,7 @@
  * 
  * @see docs/architecture.md for full pattern documentation
  */
-import { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 export interface Collection {
   id: string
@@ -159,7 +159,7 @@ export function CollectionsProvider({ children, data, initialSearch = '', onSear
   // Memoize the lookup map for O(1) selection by ID
   const collectionMap = useMemo(() => {
     const map = new Map<string, Collection>()
-    data.collections.forEach(c => map.set(c.id, c))
+    data.collections.forEach(c => { map.set(c.id, c) })
     return map
   }, [data.collections])
 
@@ -188,6 +188,11 @@ export function CollectionsProvider({ children, data, initialSearch = '', onSear
     }
   }, [data.filters])
 
+  // Sync with page changes from data
+  useEffect(() => {
+    setCurrentPage(data.pagination.page)
+  }, [data.pagination.page])
+
   const value = useMemo(() => ({
     collections: data.collections,
     getCollection,
@@ -203,13 +208,11 @@ export function CollectionsProvider({ children, data, initialSearch = '', onSear
   }), [
     data.collections,
     data.pagination,
-    collectionMap,
     getCollection,
     currentPage,
     searchQuery,
     filteredCollections,
     refreshCollections,
-    refreshKey,
     handleSetSearchQuery,
     filters,
     setFilters,

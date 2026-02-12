@@ -1,7 +1,7 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { NotFoundComponent } from "@/components/NotFound";
 import { AuthProvider } from "@/lib/auth/AuthContext";
 import { getCurrentUser } from "@/lib/server/auth.server";
-import { NotFoundComponent } from "@/components/NotFound";
 
 import appCss from "../styles.css?url";
 
@@ -56,11 +56,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
-        {/* React Scan (only for dev, to check performance issue) */}
-        <script
+        {/**
+         * React Scan - Performance debugging tool
+         * https://github.com/aidenybai/react-scan
+         *
+         * Visualizes component re-renders to identify performance issues:
+         * - Highlights components that re-render with color-coded borders
+         * - Shows render frequency and timing
+         * - Helps catch unnecessary re-renders
+         *
+         * To enable: Uncomment the script below and refresh the page
+         * Only use in development - remove before production
+         */}
+        {/* <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
-        />
+        /> */}
         <HeadContent />
       </head>
       <body className="bg-slate-950 text-slate-200 antialiased">

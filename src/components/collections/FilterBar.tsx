@@ -1,6 +1,7 @@
+import { ChevronDown, User, X } from 'lucide-react'
 import { useCallback } from 'react'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { useCollections } from './CollectionsContext'
-import { X, ChevronDown, User } from 'lucide-react'
 
 const PRICE_RANGES = [
   { label: 'All Prices', min: null, max: null },
@@ -17,6 +18,8 @@ interface FilterBarProps {
 
 export function FilterBar({ showMine = false, onToggleMine }: FilterBarProps) {
   const { filters, setFilters } = useCollections()
+  const { user } = useAuth()
+  const isLoggedIn = !!user
 
   const handleStatusChange = useCallback((status: 'all' | 'active' | 'sold') => {
     setFilters({ status })
@@ -84,7 +87,7 @@ export function FilterBar({ showMine = false, onToggleMine }: FilterBarProps) {
       </div>
 
       {/* My Collections Toggle */}
-      {onToggleMine && (
+      {isLoggedIn && onToggleMine && (
         <button
           onClick={onToggleMine}
           className={`inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg border transition-all duration-200 ${

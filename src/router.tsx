@@ -13,3 +13,10 @@ export const getRouter = () => {
 
   return router
 }
+
+// Register the router type for type inference
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: ReturnType<typeof getRouter>
+  }
+}

@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { motion } from 'framer-motion'
-import { ArrowLeft, Search, Compass } from 'lucide-react'
-import { Header } from '@/components/Header'
 import type { Variants } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { ArrowLeft, Compass, Search } from 'lucide-react'
+import { Header } from '@/components/Header'
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -92,7 +92,7 @@ export function NotFoundComponent() {
                 className="body-xl text-[#8a8a8a] max-w-lg mx-auto lg:mx-0 mb-12"
               >
                 The page you're looking for doesn't exist or has been relocated.
-                Explore our current catalog or return to the main auction floor.
+                Explore our current collections or return to the main auction floor.
               </motion.p>
 
               {/* CTAs */}
@@ -109,7 +109,7 @@ export function NotFoundComponent() {
                   className="btn-secondary"
                 >
                   <Search className="h-4 w-4" />
-                  Browse Catalog
+                  Browse Collections
                 </Link>
               </motion.div>
             </motion.div>

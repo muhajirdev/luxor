@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Header } from '@/components/Header'
 import { motion } from 'framer-motion'
-import { ArrowRight, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
 import { useState } from 'react'
+import { Header } from '@/components/Header'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { signUpUser } from '@/lib/server/auth.server'
 
 export const Route = createFileRoute('/register')({
@@ -31,6 +32,7 @@ const staggerContainer = {
 
 function RegisterPage() {
   const navigate = useNavigate()
+  const { setUser } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -50,7 +52,11 @@ function RegisterPage() {
       const result = await signUpUser({ data: formData })
 
       if (result.success) {
-        navigate({ to: '/app' })
+        // Update auth context with user data
+        if (result.user) {
+          setUser(result.user)
+        }
+        navigate({ to: '/collections' })
       } else {
         setError(result.error || 'Failed to create account')
       }

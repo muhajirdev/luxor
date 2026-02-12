@@ -1,6 +1,6 @@
-import { useState, useCallback, KeyboardEvent } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Search } from 'lucide-react'
+import { type KeyboardEvent, useCallback, useState } from 'react'
 
 interface HeaderSearchProps {
   className?: string
@@ -41,7 +41,7 @@ export function HeaderSearch({ className = '' }: HeaderSearchProps) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Search catalog..."
+        placeholder="Search collections..."
         className="w-full border border-[#1a1a1a] bg-[#0a0a0a] py-3 pl-12 pr-12 font-editorial text-sm text-[#fafaf9] placeholder-[#4a4a4a] transition-all duration-300 focus:border-[#b87333] focus:outline-none"
       />
       <button

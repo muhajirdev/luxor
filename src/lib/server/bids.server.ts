@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '@/lib/db'
-import { collections, bids, activityLogs } from '@/lib/db/schema'
-import { eq, desc, and, ne } from 'drizzle-orm'
+import { and, desc, eq, ne } from 'drizzle-orm'
 import { z } from 'zod'
+import { db } from '@/lib/db'
+import { activityLogs, bids, collections } from '@/lib/db/schema'
 import { getCurrentUser } from './auth.server'
 
 // Validation schema
@@ -32,6 +32,7 @@ export const placeBidServer = createServerFn({ method: 'POST' })
           status: collections.status,
           startingPrice: collections.startingPrice,
           ownerId: collections.ownerId,
+          endsAt: collections.endsAt,
         })
         .from(collections)
         .where(eq(collections.id, collectionId))
@@ -46,6 +47,11 @@ export const placeBidServer = createServerFn({ method: 'POST' })
         return { success: false, error: 'This collection is no longer accepting bids' }
       }
 
+      // Check for expiration
+      if (collection.endsAt && new Date() > collection.endsAt) {
+        return { success: false, error: 'This auction has ended' }
+      }
+
       // Check if user owns the collection
       if (collection.ownerId === userId) {
         return { success: false, error: 'You cannot bid on your own collection' }
@@ -55,12 +61,16 @@ export const placeBidServer = createServerFn({ method: 'POST' })
       const [highestBid] = await db
         .select({ amount: bids.amount })
         .from(bids)
-        .where(eq(bids.collectionId, collectionId))
+        .where(and(eq(bids.collectionId, collectionId), ne(bids.status, 'cancelled')))
         .orderBy(desc(bids.amount))
         .limit(1)
 
-      const currentHighestBid = highestBid?.amount ?? collection.startingPrice
-      const minimumBid = currentHighestBid + 100 // $1.00 minimum increment
+      let minimumBid: number
+      if (highestBid) {
+        minimumBid = highestBid.amount + 100 // $1.00 minimum increment
+      } else {
+        minimumBid = collection.startingPrice // First bid can be the starting price
+      }
 
       // Validate bid amount
       if (amount < minimumBid) {
@@ -266,140 +276,6 @@ export const acceptBidServer = createServerFn({ method: 'POST' })
         return { success: false, error: error.issues[0].message }
       }
       return { success: false, error: 'Failed to accept bid. Please try again.' }
-    }
-  })
-
-// Validation schema for updating a bid
-const updateBidSchema = z.object({
-  bidId: z.string().uuid('Invalid bid ID'),
-  amount: z.number().min(1, 'Bid amount must be greater than 0'),
-})
-
-export const updateBidServer = createServerFn({ method: 'POST' })
-  .inputValidator(updateBidSchema)
-  .handler(async ({ data }) => {
-    try {
-      const { bidId, amount } = data
-
-      // Check if user is authenticated
-      const userResult = await getCurrentUser()
-      if (!userResult.success || !userResult.user) {
-        return { success: false, error: 'You must be logged in to update a bid' }
-      }
-
-      const userId = userResult.user.id
-
-      // Get bid details
-      const [bid] = await db
-        .select({
-          id: bids.id,
-          collectionId: bids.collectionId,
-          userId: bids.userId,
-          amount: bids.amount,
-          status: bids.status,
-        })
-        .from(bids)
-        .where(eq(bids.id, bidId))
-        .limit(1)
-
-      if (!bid) {
-        return { success: false, error: 'Bid not found' }
-      }
-
-      // Check if user owns the bid
-      if (bid.userId !== userId) {
-        return { success: false, error: 'You can only edit your own bids' }
-      }
-
-      // Check if bid is still pending
-      if (bid.status !== 'pending') {
-        return { success: false, error: `Cannot edit a ${bid.status} bid` }
-      }
-
-      // Get collection details
-      const [collection] = await db
-        .select({
-          id: collections.id,
-          status: collections.status,
-          startingPrice: collections.startingPrice,
-          name: collections.name,
-        })
-        .from(collections)
-        .where(eq(collections.id, bid.collectionId))
-        .limit(1)
-
-      if (!collection) {
-        return { success: false, error: 'Collection not found' }
-      }
-
-      // Check if collection is active
-      if (collection.status !== 'active') {
-        return { success: false, error: 'Bidding is closed for this collection' }
-      }
-
-      // Get current highest bid (excluding this bid)
-      const [highestBid] = await db
-        .select({ amount: bids.amount })
-        .from(bids)
-        .where(
-          and(
-            eq(bids.collectionId, bid.collectionId),
-            ne(bids.id, bidId),
-            eq(bids.status, 'pending')
-          )
-        )
-        .orderBy(desc(bids.amount))
-        .limit(1)
-
-      const currentHighestBid = highestBid?.amount ?? collection.startingPrice
-      const minimumBid = currentHighestBid + 100 // $1.00 minimum increment
-
-      // Validate new amount
-      if (amount < minimumBid) {
-        return {
-          success: false,
-          error: `Minimum bid is ${formatPrice(minimumBid)}`,
-        }
-      }
-
-      // Update the bid
-      const [updatedBid] = await db
-        .update(bids)
-        .set({
-          amount,
-          updatedAt: new Date(),
-        })
-        .where(eq(bids.id, bidId))
-        .returning({
-          id: bids.id,
-          amount: bids.amount,
-          updatedAt: bids.updatedAt,
-        })
-
-      // Log activity
-      await db.insert(activityLogs).values({
-        userId,
-        type: 'bid_updated',
-        collectionId: collection.id,
-        bidId: bid.id,
-        metadata: {
-          oldAmount: bid.amount,
-          newAmount: amount,
-          collectionName: collection.name,
-        },
-      })
-
-      return {
-        success: true,
-        message: 'Bid updated successfully',
-        bid: updatedBid,
-      }
-    } catch (error: unknown) {
-      console.error('Update bid error:', error)
-      if (error instanceof z.ZodError) {
-        return { success: false, error: error.issues[0].message }
-      }
-      return { success: false, error: 'Failed to update bid. Please try again.' }
     }
   })
 

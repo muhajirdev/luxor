@@ -102,7 +102,7 @@ export const bids = pgTable(
 export const activityLogs = pgTable('activity_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  type: varchar('type', { length: 50 }).notNull(), // 'bid_placed', 'bid_accepted', 'bid_rejected', 'bid_updated', 'bid_cancelled', 'collection_created', 'collection_updated'
+  type: varchar('type', { length: 50 }).notNull(), // 'bid_placed', 'bid_accepted', 'bid_rejected', 'bid_cancelled', 'collection_created', 'collection_updated'
   collectionId: uuid('collection_id').references(() => collections.id, { onDelete: 'cascade' }),
   bidId: uuid('bid_id').references(() => bids.id, { onDelete: 'cascade' }),
   metadata: jsonb('metadata'), // flexible JSON for extra context

@@ -1,6 +1,6 @@
 # TODO - Luxor Bids Development
 
-*Last Updated: February 12, 2026 - Accept bid + filter features complete*
+*Last Updated: February 12, 2026 - Portfolio page created with user dashboard*
 
 **Quick Start:** Pick any unchecked task, implement it, check it off. Update this file as you go.
 
@@ -63,6 +63,17 @@
 - [x] Add Zod validation for all bid inputs ✅ Done
 - [x] Test bid lifecycle: place → accept → verify rejection ✅ Done
 
+### Portfolio Page
+- [x] Create `/portfolio` route with user dashboard
+- [x] Stats overview cards (active listings, sold items, active bids, total value)
+- [x] "My Collections" section showing user's owned collections
+- [x] "My Bids" section showing user's active and past bids
+- [x] Authentication check using `getCurrentUser` in loader
+- [x] Redirect to login if not authenticated
+- [x] Empty states for no collections/no bids
+- [x] Header navigation showing "Portfolio" instead of username
+- [x] Server functions: `getUserCollectionsServer`, `getUserBidsServer`
+
 ### UI Components (shadcn)
 - [ ] Initialize shadcn: `npx shadcn-ui@latest init`
 - [ ] Add components: `button`, `card`, `dialog`, `input`, `label`, `table`
@@ -74,13 +85,18 @@
 ## Phase 3: User Interface
 
 ### Layout & Navigation
-- [ ] Update `src/routes/__root.tsx` with:
-  - Dark theme background (#0a0a0a)
-  - Header with logo "Luxor Bids"
-  - Navigation: Collections | My Bids | My Collections
-  - User menu (dropdown with Sign Out)
-- [ ] Create mobile-responsive navigation
-- [ ] Add global styles for dark theme with amber accents
+- [x] Update `src/routes/__root.tsx` with dark theme background
+- [x] Header with logo "Luxor Bids"
+- [x] Navigation: Catalog | Guide | Portfolio
+- [x] User auth state in header (Login/Portfolio link)
+- [x] Mobile-responsive navigation
+- [x] Global styles for dark theme with amber accents
+
+### Portfolio Page (`/portfolio`)
+- [x] User dashboard with stats overview
+- [x] "My Collections" section
+- [x] "My Bids" section
+- [x] Authentication required
 
 ### Landing Page (`/index.tsx`)
 - [ ] Hero section with headline: "Where serious collectors bid with confidence"

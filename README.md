@@ -60,6 +60,33 @@ PostgreSQL (Neon) with explicit query builders via Drizzle ORM for type-safe dat
 - **Testing**: Vitest + React Testing Library
 - **Deployment**: Cloudflare Workers
 
+## Development Tools
+
+### React Scan (Performance Debugging)
+
+[React Scan](https://github.com/aidenybai/react-scan) is included in the project for performance debugging. It visualizes component re-renders to help identify performance issues.
+
+**Features:**
+- Highlights components that re-render with color-coded borders
+- Shows render frequency and timing
+- Helps catch unnecessary re-renders
+
+**How to enable:**
+
+1. Open `src/routes/__root.tsx`
+2. Uncomment the React Scan script tag in the `<head>` section:
+
+```tsx
+<script
+  crossOrigin="anonymous"
+  src="//unpkg.com/react-scan/dist/auto.global.js"
+/>
+```
+
+3. Refresh the page and watch for colored borders around re-rendering components
+
+**Note:** Only use React Scan in development. Never enable it in production.
+
 ## Getting Started
 
 ### Prerequisites
@@ -113,6 +140,27 @@ pnpm dev
 ```
 
 The app will be available at `http://localhost:3000`
+
+### Test Accounts
+
+After seeding the database, you can log in with any of these test accounts:
+
+**All accounts use password:** `password123`
+
+| Email | Name | Role |
+|-------|------|------|
+| `admin@luxorbids.com` | Admin User | Administrator |
+| `sarah.mitchell@email.com` | Sarah Mitchell | Collector |
+| `james.chen@email.com` | James Chen | Collector |
+| `maria.rodriguez@email.com` | Maria Rodriguez | Collector |
+| `robert.williams@email.com` | Robert Williams | Collector |
+| `elizabeth.taylor@email.com` | Elizabeth Taylor | Collector |
+| `david.kim@email.com` | David Kim | Collector |
+| `emily.johnson@email.com` | Emily Johnson | Collector |
+| `michael.brown@email.com` | Michael Brown | Collector |
+| `jennifer.davis@email.com` | Jennifer Davis | Collector |
+
+The seed data includes 15 users with 120+ collections and realistic bid history.
 
 ## Available Scripts
 
@@ -214,3 +262,118 @@ Ensure these are set in your deployment environment:
 ## License
 
 [MIT License](./LICENSE)
+
+---
+
+## Production Readiness Questions
+
+> **Q: How would you monitor the application to ensure it is running smoothly?**
+
+### Error Tracking & Performance
+- **[Sentry](./docs/future-improvements/monitoring/sentry.md)** - Real-time error tracking with stack traces and user context
+- **[Axiom](./docs/future-improvements/monitoring/axiom.md)** - Structured logging for querying and alerting
+- **[PostHog](./docs/future-improvements/monitoring/posthog.md)** - Product analytics and user session replays
+
+### Uptime & Alerting
+- **[Uptime Monitoring](./docs/future-improvements/monitoring/uptime.md)** - Health checks and downtime alerts
+- **[Discord Alerts](./docs/future-improvements/monitoring/discord-alerts.md)** - Real-time notifications for critical issues
+
+### Type-Safe Analytics
+- **[Analytics Tracking](./docs/analytics-tracking.md)** - 100% TypeScript-autocomplete for event tracking
+- **[Tracking Plan](./docs/tracking-plan.md)** - Auto-generated from code (never out of sync)
+
+### Database Monitoring
+- Neon dashboard for query performance
+- Connection pool monitoring
+- Slow query identification via indexes
+
+> **Q: How would you address scalability and performance?**
+
+### Horizontal Scaling
+**Cloudflare Workers** auto-scale globally across 300+ edge locations:
+- No server management required
+- Pay-per-request pricing
+- Automatic load balancing
+- Zero cold starts
+
+### Database Optimization
+- **[Cloudflare Hyperdrive](./docs/future-improvements/performance/cloudflare-hyperdrive.md)** - Connection pooling and intelligent query caching (reduces latency to < 50ms)
+- **Indexed Columns** - Owner, status, slug, and created_at columns indexed for fast queries
+- **Neon Serverless** - Auto-scaling PostgreSQL with branching for staging
+
+### Caching Strategy
+- **[Workers KV](./docs/future-improvements/performance/caching-strategy.md)** - Edge-cached sessions, rate limits, and leaderboard data
+- **[Cloudflare CDN](./docs/future-improvements/performance/caching-strategy.md)** - Static assets, images, and API responses cached at 300+ locations globally
+- **React Query** - Client-side cache with stale-while-revalidate strategy
+
+### Performance Optimizations
+- Component-level memoization (ID-based selection pattern)
+- Debounced search to reduce server load
+- Pagination for large collection lists
+- Image optimization via CDN
+
+> **Q: Trade-offs you had to choose when doing this challenge (the things you would do different with more time and resources)**
+
+Decisions made for rapid MVP delivery and what we'd do differently with more resources:
+
+### 1. Custom Authentication vs Managed Auth
+**Current:** Custom email/password with HTTP-only cookies
+- ✅ Fast to implement, no vendor lock-in, full control
+- ❌ Missing password reset, OAuth, rate limiting, account lockout
+
+**Future:** Migrate to [enhanced auth](./docs/future-improvements/features/enhanced-authentication.md) or Clerk/Auth0
+- Forgot password flow, Google OAuth, email verification
+- Rate limiting, device fingerprinting, audit logging
+- Multi-factor authentication for high-value transactions
+
+### 2. Polling vs Real-Time Updates
+**Current:** Client-side polling for bid updates (TanStack Query refetch)
+- ✅ Simple infrastructure, works everywhere, no connection management
+- ❌ Delayed updates, unnecessary network traffic, poor UX during active bidding
+
+**Future:** [WebSocket or SSE integration](./docs/future-improvements/features/real-time-updates.md)
+- PartyKit (Cloudflare edge) or Socket.io for live bid updates
+- Instant outbid notifications
+- Real-time collection status changes
+
+### 3. External Image URLs vs Upload System
+**Current:** Collection images via external URLs (Unsplash)
+- ✅ No storage costs or complexity, instant setup
+- ❌ Poor UX (users can't upload), dependency on external services, no image optimization
+
+**Future:** [R2 Image Upload](./docs/future-improvements/features/image-upload.md)
+- Direct uploads with validation and resizing
+- CDN delivery with automatic optimization
+- Support for multiple images per collection
+
+### 4. Testing Coverage
+**Current:** Limited test coverage focused on critical paths
+- ✅ Faster iteration during MVP phase
+- ❌ Risk of regressions, slower confident refactors
+
+**Future:** Comprehensive test suite
+- Unit tests for all server functions
+- Integration tests for bidding workflows
+- E2E tests for critical user journeys
+
+### 5. Payment Integration
+**Current:** No payment processing (bidding only)
+- ✅ Simplified MVP, no PCI compliance complexity
+- ❌ No way to collect deposits or finalize transactions
+
+**Future:** [Stripe Integration](./docs/future-improvements/features/payment-integration.md)
+- Bid deposits to prevent spam
+- Automatic payment capture on bid acceptance
+- Escrow system for high-value items
+
+### 6. Search & Discovery
+**Current:** Basic text search on name/description
+- ✅ Simple implementation, fast enough for MVP scale
+- ❌ No faceted search, no recommendations, limited discovery
+
+**Future:** [Advanced Search](./docs/future-improvements/features/search-discovery.md)
+- Full-text search with Algolia/Typesense
+- Category-based filtering and sorting
+- Recommendation engine based on bidding history
+
+See [docs/future-improvements/](./docs/future-improvements/) for complete roadmap and implementation details.

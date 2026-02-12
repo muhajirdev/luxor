@@ -1,10 +1,10 @@
+import { Loader2 } from 'lucide-react'
 import { memo, useCallback } from 'react'
 import { useCollections } from './CollectionsContext'
-import { Loader2 } from 'lucide-react'
 
 export const Pagination = memo(function Pagination() {
   const { pagination, goToPage, isLoading } = useCollections()
-  const { page, totalPages, totalCount } = pagination
+  const { page, totalPages, totalCount, limit } = pagination
 
   const handlePrevious = useCallback(() => {
     if (page > 1) goToPage(page - 1)
@@ -14,14 +14,20 @@ export const Pagination = memo(function Pagination() {
     if (page < totalPages) goToPage(page + 1)
   }, [page, totalPages, goToPage])
 
+  const start = totalCount === 0 ? 0 : (page - 1) * limit + 1
+  const end = Math.min(page * limit, totalCount)
+
+  if (totalCount === 0) return null
+
   return (
     <div className="mt-8 flex items-center justify-between">
       <div className="label-sm text-[#4a4a4a]">
-        Showing {pagination.limit} of {totalCount} collections
+        Showing <span className="text-[#8a8a8a]">{start}-{end}</span> of <span className="text-[#8a8a8a]">{totalCount}</span> collections
       </div>
       
       <div className="flex items-center gap-2">
         <button
+          type="button"
           onClick={handlePrevious}
           disabled={page <= 1 || isLoading}
           className="px-4 py-2 border border-[#1a1a1a] label-sm text-[#8a8a8a] transition-all hover:border-[#b87333] hover:text-[#fafaf9] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -35,6 +41,7 @@ export const Pagination = memo(function Pagination() {
         </span>
         
         <button
+          type="button"
           onClick={handleNext}
           disabled={page >= totalPages || isLoading}
           className="px-4 py-2 border border-[#1a1a1a] label-sm text-[#8a8a8a] transition-all hover:border-[#b87333] hover:text-[#fafaf9] disabled:opacity-50 disabled:cursor-not-allowed"

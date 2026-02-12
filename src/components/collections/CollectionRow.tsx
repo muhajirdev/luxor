@@ -1,29 +1,37 @@
-import { ChevronDown, ChevronUp, Clock, BarChart3 } from 'lucide-react'
+import { BarChart3, ChevronDown, ChevronUp, Clock, Pencil } from 'lucide-react'
 import { memo, useCallback } from 'react'
-import { useCollection } from './CollectionsContext'
-import { formatPrice, formatTimeLeft } from '@/lib/utils/formatters'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { formatPrice, formatTimeLeft } from '@/lib/utils/formatters'
+import { useCollection } from './CollectionsContext'
 
 interface CollectionRowProps {
   collectionId: string
   isExpanded: boolean
   onToggle: (id: string) => void
+  onEdit?: (id: string) => void
 }
 
 export const CollectionRow = memo(function CollectionRow({
   collectionId,
   isExpanded,
-  onToggle
+  onToggle,
+  onEdit,
 }: CollectionRowProps) {
   const collection = useCollection(collectionId)
   const { user } = useAuth()
-  const isOwner = user?.id === collection?.sellerId
-
-  if (!collection) return null
 
   const handleClick = useCallback(() => {
     onToggle(collectionId)
   }, [onToggle, collectionId])
+
+  const handleEditClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    onEdit?.(collectionId)
+  }, [onEdit, collectionId])
+
+  if (!collection) return null
+
+  const isOwner = user?.id === collection?.sellerId
 
   return (
     <tr
@@ -31,7 +39,10 @@ export const CollectionRow = memo(function CollectionRow({
       onClick={handleClick}
     >
       <td className="text-center">
-        <button className="p-2 text-[#4a4a4a] transition-colors hover:text-[#b87333]">
+        <button
+          type="button"
+          className="p-2 text-[#4a4a4a] transition-colors hover:text-[#b87333]"
+        >
           {isExpanded ? (
             <ChevronUp className="h-4 w-4" />
           ) : (
@@ -60,9 +71,6 @@ export const CollectionRow = memo(function CollectionRow({
                   Yours
                 </span>
               )}
-            </div>
-            <div className="lot-number-sm">
-              LOT {collection.lot}
             </div>
           </div>
         </div>
@@ -102,6 +110,18 @@ export const CollectionRow = memo(function CollectionRow({
         <span className={`status-badge ${collection.status === 'active' ? 'status-live' : 'status-sold'}`}>
           {collection.status}
         </span>
+      </td>
+      <td className="text-center">
+        {isOwner && onEdit && collection.status === 'active' && (
+          <button
+            type="button"
+            onClick={handleEditClick}
+            className="p-2 text-[#4a4a4a] hover:text-[#b87333] transition-colors"
+            title="Edit collection"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
       </td>
     </tr>
   )

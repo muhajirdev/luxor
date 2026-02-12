@@ -1,6 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { LogOut, Menu, User, X } from 'lucide-react'
 import { useState } from 'react'
-import { Menu, X, User, LogOut } from 'lucide-react'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { HeaderSearch } from './HeaderSearch'
 
@@ -48,7 +48,7 @@ export function Header() {
               to="/collections"
               className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
             >
-              Catalog
+              Collections
             </Link>
             <Link
               to="/how-it-works"
@@ -56,17 +56,25 @@ export function Header() {
             >
               Guide
             </Link>
+            {!isLoggedIn && (
+              <Link
+                to="/portfolio"
+                className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
+              >
+                Portfolio
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center gap-4 lg:gap-6">
             {isLoggedIn ? (
               <>
                 <Link
-                  to="/app"
+                  to="/portfolio"
                   className="flex items-center gap-2 label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
                 >
                   <User className="h-4 w-4" />
-                  {user?.name}
+                  Portfolio
                 </Link>
                 <button
                   onClick={handleSignOut}
@@ -119,7 +127,7 @@ export function Header() {
                 onClick={() => setIsOpen(false)}
                 className="block font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
               >
-                Catalog
+                Collections
               </Link>
               <Link
                 to="/how-it-works"
@@ -128,6 +136,15 @@ export function Header() {
               >
                 Guide
               </Link>
+              {!isLoggedIn && (
+                <Link
+                  to="/portfolio"
+                  onClick={() => setIsOpen(false)}
+                  className="block font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
+                >
+                  Portfolio
+                </Link>
+              )}
             </div>
 
             <div className="h-px bg-[#1a1a1a]" />
@@ -135,12 +152,12 @@ export function Header() {
             {isLoggedIn ? (
               <div className="space-y-4">
                 <Link
-                  to="/app"
+                  to="/portfolio"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-2 font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
                 >
                   <User className="h-5 w-5" />
-                  {user?.name}
+                  Portfolio
                 </Link>
                 <button
                   onClick={handleSignOut}

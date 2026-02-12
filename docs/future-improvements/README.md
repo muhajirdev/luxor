@@ -32,6 +32,10 @@ This folder contains detailed specifications for planned enhancements and archit
 - [Discord Alerts](./monitoring/discord-alerts.md) - Real-time critical alerts
 - [Axiom Logging](./monitoring/axiom.md) - Centralized structured logging
 
+## Database
+
+- [Schema Improvements](./database/schema-improvements.md) - pgEnum for status fields, indexes, and optimizations
+
 ## Design
 
 - [Full Design System](./design/design-system.md) - Comprehensive design system beyond MVP guidelines

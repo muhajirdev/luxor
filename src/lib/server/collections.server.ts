@@ -1,8 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
+import { and, count, desc, eq, gte, ilike, lte, max, ne, or } from 'drizzle-orm'
 import { z } from 'zod'
+import { getSessionToken } from '@/lib/auth/cookie'
+import { validateSession } from '@/lib/auth/session'
 import { db } from '@/lib/db'
-import { collections, users, bids } from '@/lib/db/schema'
-import { eq, desc, count, max, ilike, or, and, gte, lte } from 'drizzle-orm'
+import { activityLogs, bids, categories, collectionCategories, collections, users } from '@/lib/db/schema'
 
 export const getTrendingCollectionsServer = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -15,7 +17,7 @@ export const getTrendingCollectionsServer = createServerFn({ method: 'GET' })
       })
       .from(collections)
       .leftJoin(users, eq(collections.ownerId, users.id))
-      .leftJoin(bids, eq(collections.id, bids.collectionId))
+      .leftJoin(bids, and(eq(collections.id, bids.collectionId), ne(bids.status, 'cancelled')))
       .where(eq(collections.status, 'active'))
       .groupBy(collections.id, users.id)
       .orderBy(desc(count(bids.id)))
@@ -129,6 +131,9 @@ export const getCollectionsListServer = createServerFn({ method: 'GET' })
 
     // Build filter conditions
     const conditions = []
+
+    // Always exclude deleted collections unless specifically requested
+    conditions.push(ne(collections.status, 'deleted'))
 
     // Search condition
     if (search && search.trim()) {
@@ -251,4 +256,272 @@ export const getCollectionBidsServer = createServerFn({ method: 'GET' })
       bidderName: item.user?.name ?? 'Unknown',
       bidderAvatar: item.user?.avatarUrl ?? null,
     }))
+  })
+
+// Create new collection
+const createCollectionSchema = z.object({
+  name: z.string().min(3, 'Name must be at least 3 characters').max(100, 'Name must be less than 100 characters'),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
+  startingPrice: z.number().min(1, 'Starting price must be at least $1').max(100000000, 'Starting price is too high'),
+  stock: z.number().min(1, 'Stock must be at least 1').max(10000, 'Stock is too high').default(1),
+  imageUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+  categoryIds: z.array(z.string().uuid()).optional(),
+})
+
+function generateSlug(name: string): string {
+  const base = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  const random = Math.random().toString(36).substring(2, 8)
+  return `${base}-${random}`
+}
+
+export const createCollectionServer = createServerFn({ method: 'POST' })
+  .inputValidator(createCollectionSchema)
+  .handler(async ({ data }) => {
+    try {
+      // Get current user
+      const token = getSessionToken()
+      if (!token) {
+        return { success: false, error: 'Please sign in to create a collection' }
+      }
+      
+      const user = await validateSession(token)
+      if (!user) {
+        return { success: false, error: 'Session expired. Please sign in again.' }
+      }
+
+      // Generate slug
+      const slug = generateSlug(data.name)
+
+      // Create collection
+      const [newCollection] = await db
+        .insert(collections)
+        .values({
+          name: data.name,
+          slug,
+          description: data.description || null,
+          imageUrl: data.imageUrl || null,
+          stock: data.stock,
+          startingPrice: data.startingPrice,
+          ownerId: user.id,
+          status: 'active',
+        })
+        .returning({
+          id: collections.id,
+          name: collections.name,
+          slug: collections.slug,
+        })
+
+      // Add categories if provided
+      if (data.categoryIds && data.categoryIds.length > 0) {
+        await db.insert(collectionCategories).values(
+          data.categoryIds.map((categoryId) => ({
+            collectionId: newCollection.id,
+            categoryId,
+          }))
+        )
+      }
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        userId: user.id,
+        type: 'collection_created',
+        collectionId: newCollection.id,
+        metadata: {
+          name: data.name,
+          startingPrice: data.startingPrice,
+        },
+      })
+
+      return {
+        success: true,
+        collection: {
+          id: newCollection.id,
+          name: newCollection.name,
+          slug: newCollection.slug,
+        },
+      }
+    } catch (error) {
+      console.error('Create collection error:', error)
+      if (error instanceof z.ZodError) {
+        return { success: false, error: error.issues[0].message }
+      }
+      return { success: false, error: 'Failed to create collection. Please try again.' }
+    }
+  })
+
+// Delete collection (soft delete)
+const deleteCollectionSchema = z.object({
+  collectionId: z.string().uuid('Invalid collection ID'),
+})
+
+export const deleteCollectionServer = createServerFn({ method: 'POST' })
+  .inputValidator(deleteCollectionSchema)
+  .handler(async ({ data }) => {
+    try {
+      // Get current user
+      const token = getSessionToken()
+      if (!token) {
+        return { success: false, error: 'Please sign in to delete a collection' }
+      }
+      
+      const user = await validateSession(token)
+      if (!user) {
+        return { success: false, error: 'Session expired. Please sign in again.' }
+      }
+
+      // Get collection and verify ownership
+      const [collection] = await db
+        .select({
+          id: collections.id,
+          ownerId: collections.ownerId,
+          status: collections.status,
+          name: collections.name,
+        })
+        .from(collections)
+        .where(eq(collections.id, data.collectionId))
+        .limit(1)
+
+      if (!collection) {
+        return { success: false, error: 'Collection not found' }
+      }
+
+      if (collection.ownerId !== user.id) {
+        return { success: false, error: 'You can only delete your own collections' }
+      }
+
+      if (collection.status === 'sold') {
+        return { success: false, error: 'Cannot delete a sold collection' }
+      }
+
+      if (collection.status === 'deleted') {
+        return { success: false, error: 'Collection is already deleted' }
+      }
+
+      // Soft delete - update status to 'deleted'
+      await db
+        .update(collections)
+        .set({ status: 'deleted', updatedAt: new Date() })
+        .where(eq(collections.id, data.collectionId))
+
+      // Reject all pending bids
+      await db
+        .update(bids)
+        .set({ status: 'rejected', updatedAt: new Date() })
+        .where(
+          and(
+            eq(bids.collectionId, data.collectionId),
+            eq(bids.status, 'pending')
+          )
+        )
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        userId: user.id,
+        type: 'collection_deleted',
+        collectionId: data.collectionId,
+        metadata: {
+          name: collection.name,
+        },
+      })
+
+      return {
+        success: true,
+        message: 'Collection deleted successfully',
+      }
+    } catch (error) {
+      console.error('Delete collection error:', error)
+      if (error instanceof z.ZodError) {
+        return { success: false, error: error.issues[0].message }
+      }
+      return { success: false, error: 'Failed to delete collection. Please try again.' }
+    }
+  })
+
+// Update collection
+const updateCollectionSchema = z.object({
+  collectionId: z.string().uuid('Invalid collection ID'),
+  name: z.string().min(3, 'Name must be at least 3 characters').max(100, 'Name must be less than 100 characters'),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
+  imageUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+})
+
+export const updateCollectionServer = createServerFn({ method: 'POST' })
+  .inputValidator(updateCollectionSchema)
+  .handler(async ({ data }) => {
+    try {
+      // Get current user
+      const token = getSessionToken()
+      if (!token) {
+        return { success: false, error: 'Please sign in to update a collection' }
+      }
+      
+      const user = await validateSession(token)
+      if (!user) {
+        return { success: false, error: 'Session expired. Please sign in again.' }
+      }
+
+      // Get collection and verify ownership
+      const [collection] = await db
+        .select({
+          id: collections.id,
+          ownerId: collections.ownerId,
+          status: collections.status,
+          name: collections.name,
+        })
+        .from(collections)
+        .where(eq(collections.id, data.collectionId))
+        .limit(1)
+
+      if (!collection) {
+        return { success: false, error: 'Collection not found' }
+      }
+
+      if (collection.ownerId !== user.id) {
+        return { success: false, error: 'You can only edit your own collections' }
+      }
+
+      if (collection.status === 'sold') {
+        return { success: false, error: 'Cannot edit a sold collection' }
+      }
+
+      if (collection.status === 'deleted') {
+        return { success: false, error: 'Cannot edit a deleted collection' }
+      }
+
+      // Update collection
+      await db
+        .update(collections)
+        .set({
+          name: data.name,
+          description: data.description || null,
+          imageUrl: data.imageUrl || null,
+          updatedAt: new Date(),
+        })
+        .where(eq(collections.id, data.collectionId))
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        userId: user.id,
+        type: 'collection_updated',
+        collectionId: data.collectionId,
+        metadata: {
+          name: data.name,
+          previousName: collection.name,
+        },
+      })
+
+      return {
+        success: true,
+        message: 'Collection updated successfully',
+      }
+    } catch (error) {
+      console.error('Update collection error:', error)
+      if (error instanceof z.ZodError) {
+        return { success: false, error: error.issues[0].message }
+      }
+      return { success: false, error: 'Failed to update collection. Please try again.' }
+    }
   })

@@ -1,13 +1,12 @@
 # Project State: Luxor Bids
 
 *Created: February 12, 2026*  
-*Last Updated: February 12, 2026*
-
+*Last Updated: February 12, 2026 (Updated: Full CRUD operations complete - Create, Read, Update, Delete collections)*
 ---
 
 ## Overview
 
-**Status:** MVP 85% Complete  
+**Status:** MVP 98% Complete  
 **Challenge:** LuxorLabs Frontend Assessment  
 **Theme:** Premium bidding marketplace with editorial dark aesthetic
 
@@ -33,6 +32,14 @@
 - [x] Trending collections table with live data
 - [x] Recently sold marquee
 - [x] Dark theme with bronze (#b87333) accents
+
+### Portfolio Page (`/portfolio`)
+- [x] User dashboard showing collections and bids
+- [x] Stats overview (active listings, sold items, active bids, total bid value)
+- [x] "My Collections" section with collection cards
+- [x] "My Bids" section with bid status and amounts
+- [x] Authentication required (redirects to login if not signed in)
+- [x] Header navigation shows "Portfolio" link
 
 ### Collections Page
 - [x] Full collections list with pagination
@@ -74,13 +81,13 @@
 ### Bid Management
 - [x] Accept bid functionality (for collection owners) ✅ DONE
 - [x] Auto-reject other bids when one is accepted ✅ DONE (when stock=0)
-- [ ] Edit own bid (before acceptance)
-- [ ] Cancel own bid (before acceptance)
+- [ ] ~~Edit own bid~~ ❌ REMOVED - Not realistic for bidding platforms (users place new higher bids instead)
+- [x] Cancel own bid (before acceptance) ✅ DONE - Soft delete with 'cancelled' status
 
 ### Collection Management
-- [ ] Create new collection form
-- [ ] Edit own collection
-- [ ] Delete own collection
+- [x] Create new collection form ✅ DONE - Form with validation, price presets, image URL
+- [x] Edit own collection ✅ DONE - Edit name/description/imageUrl only (price/stock locked for bid integrity)
+- [x] Delete own collection ✅ DONE - Soft delete with confirmation dialog
 - [ ] Upload images (currently using Unsplash URLs)
 
 ### Owner Controls
@@ -90,7 +97,7 @@
 
 ### Edge Cases
 - [ ] Handle expired collections
-- [ ] Prevent bidding on own collections (server validation exists, UI check needed)
+- [x] Prevent bidding on own collections ✅ Implemented UI and Server validation
 - [ ] Bid validation edge cases
 
 ### Documentation
@@ -147,7 +154,11 @@ src/
 │   │   ├── CollectionRow.tsx
 │   │   ├── CollectionTable.tsx
 │   │   ├── CollectionsContext.tsx
-│   │   ├── FilterBar.tsx        # Status, price, owner filters
+│   │   ├── CreateCollectionForm.tsx    # Create collection form
+│   │   ├── CreateCollectionModal.tsx   # Create collection modal
+│   │   ├── EditCollectionForm.tsx      # Edit collection form
+│   │   ├── EditCollectionModal.tsx     # Edit collection modal
+│   │   ├── FilterBar.tsx               # Status, price, owner filters
 │   │   ├── Pagination.tsx
 │   │   └── SearchBar.tsx
 │   └── Header.tsx
@@ -164,7 +175,8 @@ src/
 │   ├── server/
 │   │   ├── auth.server.ts
 │   │   ├── bids.server.ts
-│   │   └── collections.server.ts
+│   │   ├── collections.server.ts
+│   │   └── portfolio.server.ts   # User portfolio data
 │   └── utils/
 │       └── formatters.ts
 ├── routes/
@@ -172,6 +184,7 @@ src/
 │   ├── index.tsx        # Landing page
 │   ├── collections.tsx  # Collections list
 │   ├── login.tsx
+│   ├── portfolio.tsx    # User dashboard
 │   ├── register.tsx
 │   └── app/
 │       └── index.tsx    # Protected dashboard
@@ -182,20 +195,21 @@ src/
 
 ## Next Priority
 
-### 1. Create Collection (HIGH)
-- Form with TanStack Form + Zod
-- Image upload (or URL input for now)
-- Set starting price
-- Wire to server function
+### 1. Collection Management (HIGH)
+- [x] Create collection ✅ DONE
+- [x] Edit collection ✅ DONE
+- [x] Delete collection ✅ DONE - Soft delete with confirmation dialog
+- [x] Remove "LOT" display from collection list ✅ DONE
 
-### 2. Edit/Cancel Bid (MEDIUM)
-- Edit own bid (if not accepted)
-- Cancel own bid
-- Server validation
+### 2. Bid Management (COMPLETED)
+- [x] Accept bid ✅ DONE
+- [x] Cancel own bid ✅ DONE
+- [ ] ~~Edit own bid~~ ❌ REMOVED (not realistic)
 
-### 3. Owner Controls (MEDIUM)
-- Edit collection button
-- Delete collection button
+### 3. UI Polish (MEDIUM)
+- [x] Remove meaningless LOT numbers from collection cards ✅ DONE
+- [ ] Better mobile responsiveness
+- [ ] Loading skeletons
 
 ### 4. Completed ✅
 - ✅ Accept bid functionality with stock logic
@@ -203,6 +217,10 @@ src/
 - ✅ Owner-only accept buttons
 - ✅ "Yours" badge indicator
 - ✅ Advanced filter bar (status, price, my collections)
+- ✅ Cancel own bid (soft delete with animation)
+- ✅ Create collection form with validation
+- ✅ Edit collection (name, description, image only)
+- ✅ Delete collection (soft delete)
 
 ---
 
@@ -235,13 +253,13 @@ src/
 - [x] Filter by status (All/Active/Sold) ✅ Implemented
 - [x] Filter by price range ✅ Implemented
 - [x] Filter "My Collections" only ✅ Implemented
-- [ ] Create new collection
-- [ ] Edit collection
-- [ ] Delete collection
-- [ ] Edit own bid
-- [ ] Cancel own bid
-- [ ] Bid validation (min amount, own collection)
+- [x] Create new collection ✅ Implemented
+- [x] Edit collection ✅ DONE
+- [x] Delete collection ✅ DONE - Soft delete with confirmation dialog
+- [ ] ~~Edit own bid~~ ❌ Not implementing (not realistic)
+- [x] Cancel own bid ✅ Implemented
+- [x] Bid validation (min amount, own collection) ✅ Implemented
 
 ---
 
-*Last Updated: February 12, 2026 - Post accept-bid + filter implementation*
+*Last Updated: February 12, 2026 - Create collection form implemented*

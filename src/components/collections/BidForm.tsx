@@ -1,21 +1,22 @@
-import { useState, useCallback } from 'react'
 import { ArrowRight, Loader2 } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { placeBidServer } from '@/lib/server/bids.server'
 import { formatPrice, priceToCents } from '@/lib/utils/formatters'
 
 interface BidFormProps {
   collectionId: string
   currentBid: number
+  bidCount: number
   onBidPlaced: () => void
 }
 
-export function BidForm({ collectionId, currentBid, onBidPlaced }: BidFormProps) {
+export function BidForm({ collectionId, currentBid, bidCount, onBidPlaced }: BidFormProps) {
   const [bidAmount, setBidAmount] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const minimumBid = currentBid + 100
+  const minimumBid = bidCount > 0 ? currentBid + 100 : currentBid
   const minimumBidDollars = minimumBid / 100
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -85,12 +86,13 @@ export function BidForm({ collectionId, currentBid, onBidPlaced }: BidFormProps)
       {/* Bid Input */}
       <div className="flex items-center gap-4">
         <div className="flex-1">
-          <label className="label-sm text-[#4a4a4a] block mb-1">
+          <label htmlFor={`bid-amount-${collectionId}`} className="label-sm text-[#4a4a4a] block mb-1">
             Your Bid (min: {formatPrice(minimumBid)})
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4a4a4a]">$</span>
             <input
+              id={`bid-amount-${collectionId}`}
               type="number"
               step="0.01"
               min={minimumBidDollars}
