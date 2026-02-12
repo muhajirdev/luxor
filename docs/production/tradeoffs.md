@@ -34,17 +34,7 @@ Decisions made for rapid MVP delivery and what we'd do differently with more res
 - CDN delivery with automatic optimization
 - Support for multiple images per collection
 
-## 4. Testing Coverage
-**Current:** Limited test coverage focused on critical paths
-- ✅ Faster iteration during MVP phase
-- ❌ Risk of regressions, slower confident refactors
-
-**Future:** Comprehensive test suite
-- Unit tests for all server functions
-- Integration tests for bidding workflows
-- E2E tests for critical user journeys
-
-## 5. Payment Integration
+## 4. Payment Integration
 **Current:** No payment processing (bidding only)
 - ✅ Simplified MVP, no PCI compliance complexity
 - ❌ No way to collect deposits or finalize transactions
@@ -53,6 +43,19 @@ Decisions made for rapid MVP delivery and what we'd do differently with more res
 - Bid deposits to prevent spam
 - Automatic payment capture on bid acceptance
 - Escrow system for high-value items
+
+## 5. Component Architecture - Composition Pattern
+**Current:** We use the **State Colocation + ID-based Selection + Composition** pattern for complex UI components (see [architecture decisions](../architecture-decisions.md))
+- ✅ Flexible composition, no prop drilling, optimal performance with default React.memo
+- ✅ Works well with ID-based selection - components select their own data
+- ❌ Steeper learning curve, requires understanding of Radix UI-like patterns
+- ❌ More boilerplate for simple components
+
+**What we'd do with more time:**
+- Build a more generalized component library following this pattern
+- Add more comprehensive documentation and examples
+- Consider creating reusable primitives for common patterns
+- Evaluate when to use this pattern vs simpler approaches
 
 ## 6. Search & Discovery
 **Current:** Basic text search on name/description
