@@ -57,14 +57,30 @@ Decisions made for rapid MVP delivery and what we'd do differently with more res
 - Consider creating reusable primitives for common patterns
 - Evaluate when to use this pattern vs simpler approaches
 
-## 6. Search & Discovery
-**Current:** Basic text search on name/description
+## 6. Design System
+**Current:** Using [design guidelines](../design-guidelines.md) for consistency
+- ✅ Results in consistent, premium aesthetic across the app
+- ✅ Very fast iteration - no Storybook overhead, direct implementation
+- ❌ No Storybook for component documentation and testing
+- ❌ Limited reusable component library - many one-off implementations
+- ❌ No visual regression testing
+
+**Future:** Build proper design system with Storybook
+- Document all components in isolation
+- Create reusable component library with proper variants
+- Add visual regression testing (Chromatic)
+- Better designer-developer handoff
+
+## 7. Search & Discovery
+**Current:** Basic text search with `LIKE` queries on name/description
 - ✅ Simple implementation, fast enough for MVP scale
+- ❌ No typo tolerance - "rolex" won't match "rollex"
 - ❌ No faceted search, no recommendations, limited discovery
 
-**Future:** [Advanced Search](../future-improvements/features/search-discovery.md)
-- Full-text search with Algolia/Typesense
-- Category-based filtering and sorting
-- Recommendation engine based on bidding history
+**Future:** Full-text search with typo tolerance and semantic capabilities
+- Implement [pg_trgm](https://neon.com/docs/extensions/pg_trgm) for fuzzy matching and typo tolerance
+- Full-text search with PostgreSQL `tsvector` for better relevance
+- Semantic search (transform titles/descriptions into embeddings) - powerful but overkill for current scale
+- Category-based filtering, recommendations based on bidding history
 
 See [../future-improvements/](../future-improvements/) for complete roadmap and implementation details.
