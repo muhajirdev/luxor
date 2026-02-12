@@ -121,6 +121,59 @@ pnpm deploy           # Build and deploy to Cloudflare Workers
 pnpm preview          # Build and preview locally
 ```
 
+## API Endpoints
+
+### Health Check
+
+**Endpoint:** `GET /api/health`
+
+Returns the service health status, useful for monitoring and load balancers.
+
+**Response (200 - Healthy):**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-12T12:00:00.000Z",
+  "version": "1.0.0",
+  "checks": {
+    "database": {
+      "status": "healthy",
+      "responseTime": 12
+    },
+    "environment": {
+      "status": "healthy",
+      "region": "SJC",
+      "cfRay": "8f9a2b..."
+    }
+  }
+}
+```
+
+**Response (503 - Unhealthy):**
+```json
+{
+  "status": "unhealthy",
+  "timestamp": "2026-02-12T12:00:00.000Z",
+  "version": "1.0.0",
+  "checks": {
+    "database": {
+      "status": "unhealthy",
+      "responseTime": 5000,
+      "message": "Connection timeout"
+    },
+    "environment": {
+      "status": "healthy",
+      "region": "SJC",
+      "cfRay": "8f9a2b..."
+    }
+  }
+}
+```
+
+**Check Details:**
+- **Database**: Validates PostgreSQL connectivity with response time
+- **Environment**: Shows Cloudflare datacenter region and request ID for debugging
+
 ## Project Structure
 
 ```
