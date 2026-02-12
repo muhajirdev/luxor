@@ -1,7 +1,9 @@
 import { memo, useCallback } from 'react'
+import { Link } from '@tanstack/react-router'
 import { useCollection } from './CollectionsContext'
 import { formatPrice } from '@/lib/utils/formatters'
 import { BidForm } from './BidForm'
+import { useAuth } from '@/lib/auth/AuthContext'
 
 interface BidHistoryTableProps {
   collectionId: string
@@ -10,12 +12,14 @@ interface BidHistoryTableProps {
 
 export const BidHistoryTable = memo(function BidHistoryTable({ collectionId, onBidPlaced }: BidHistoryTableProps) {
   const collection = useCollection(collectionId)
-
-  if (!collection) return null
+  const { user } = useAuth()
+  const isLoggedIn = !!user
 
   const handleBidPlaced = useCallback(() => {
     onBidPlaced()
   }, [onBidPlaced])
+
+  if (!collection) return null
 
   return (
     <div className="p-6 animate-expandContentIn">
@@ -78,13 +82,46 @@ export const BidHistoryTable = memo(function BidHistoryTable({ collectionId, onB
         </div>
       </div>
 
-      {/* Bid Form */}
+      {/* Bid Section */}
       <div className="pt-4 border-t border-[#1a1a1a]">
-        <BidForm
-          collectionId={collectionId}
-          currentBid={collection.currentBid}
-          onBidPlaced={handleBidPlaced}
-        />
+        {isLoggedIn ? (
+          // Show bid form for logged in users
+          <BidForm
+            collectionId={collectionId}
+            currentBid={collection.currentBid}
+            onBidPlaced={handleBidPlaced}
+          />
+        ) : (
+          // Show login prompt for guests
+          <div className="py-6 text-center">
+            <div className="mb-4">
+              <span className="label-sm text-[#4a4a4a]">Next minimum bid</span>
+              <div className="font-display text-2xl text-[#fafaf9] tabular mt-1">
+                {formatPrice(collection.currentBid + 100)}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="body-sm text-[#8a8a8a]">
+                Login to place your bid on this collection
+              </p>
+
+              <Link
+                to="/login"
+                className="btn-primary inline-flex"
+              >
+                Login to Bid
+              </Link>
+
+              <p className="body-sm text-[#4a4a4a]">
+                Don't have an account?{' '}
+                <Link to="/register" className="text-[#b87333] hover:text-[#fafaf9] transition-colors">
+                  Register
+                </Link>
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

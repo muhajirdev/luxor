@@ -67,6 +67,60 @@ Subsequent Requests:
 4. Request proceeds with user context
 ```
 
+### Auth State Management
+
+We use a **hybrid approach** combining TanStack Router's root loader with React Context:
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Root Loader   │────▶│  AuthProvider   │────▶│    useAuth()    │
+│   (SSR/Server)  │     │   (Context)     │     │  (Components)   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                        │                        │
+        │                        │                        │
+  getCurrentUser()         initialUser               user, signOut
+  (server function)         (prop)                   (hook return)
+```
+
+**Why this pattern?**
+
+1. **Server-first initialization**: User data comes from root loader (runs before any component renders)
+   - No client-side fetch needed
+   - No hydration mismatch
+   - Auth state available immediately on SSR
+
+2. **Context for UI updates**: After signOut, we need to update auth state and re-render components
+   - Route loader data is immutable during component lifecycle
+   - Context allows `setUser(null)` to trigger re-render
+   - Header and other auth-aware components stay in sync
+
+**Usage:**
+
+```typescript
+// In any component
+import { useAuth } from '@/lib/auth/AuthContext'
+
+function Header() {
+  const { user, signOut } = useAuth()
+  
+  if (user) {
+    return <div>Welcome, {user.name} <button onClick={signOut}>Sign Out</button></div>
+  }
+  return <Link to="/login">Login</Link>
+}
+```
+
+**For server functions** (not UI), use `getCurrentUser()` directly:
+
+```typescript
+createServerFn({ method: 'POST' })
+  .handler(async () => {
+    const result = await getCurrentUser()
+    if (!result.user) throw new Error('Unauthorized')
+    // ... proceed with authenticated action
+  })
+```
+
 ## Database Layer
 
 **Drizzle ORM** with explicit query builders (no `db.query`):

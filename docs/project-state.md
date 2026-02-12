@@ -5,336 +5,223 @@
 
 ---
 
-## Project Overview
+## Overview
 
-**Project Type:** Coding Challenge (LuxorLabs Frontend Assessment)  
-**Repository:** Local development (will be pushed to GitHub)  
-**Deliverable Deadline:** Not specified (assume ASAP)
-
-**Challenge Requirements:**
-- Build a full-stack bidding system with Next.js (or similar)
-- 100+ collections, 1000+ bids, 10+ users
-- CRUD for collections and bids
-- Accept bid functionality (auto-rejects others)
-- Nested table UI showing collections with bids
-- Owner vs Bidder role-based controls
-- Forms for create/update operations
+**Status:** MVP 80% Complete  
+**Challenge:** LuxorLabs Frontend Assessment  
+**Theme:** Premium bidding marketplace with editorial dark aesthetic
 
 ---
 
-## Product Goal
+## Completed
 
-### Vision
-Transform the coding challenge into **Luxor Bids** — a premium curated marketplace that feels production-ready, not like a toy demo.
+### Database & Schema
+- [x] PostgreSQL (Neon) setup with Drizzle ORM
+- [x] Complete schema: users, collections, bids, categories, sessions, activity_logs
+- [x] Proper indexes on all foreign keys and query columns
+- [x] Seed data: 15 users, 120 collections, 1000+ bids
 
-### Success Metrics
-1. **Functional:** All challenge requirements met (CRUD, accept bid, nested UI)
-2. **UX:** Feels like a real product (Blur.io/NFT marketplace aesthetic)
-3. **Code Quality:** Clean, well-structured, documented
-4. **Marketing:** Real copy, consistent branding, professional presentation
+### Authentication
+- [x] Custom email/password auth with bcrypt
+- [x] Server-side sessions with HTTP-only cookies
+- [x] Login/Register pages with beautiful editorial UI
+- [x] Protected routes (`/app/*`) with middleware
+- [x] AuthContext for global auth state
 
-### Core Features (MVP)
-| Feature | Priority | Status |
-|---------|----------|--------|
-| User authentication (email/password) | High | Pending |
-| Collection CRUD | High | Pending |
-| Bid CRUD + Accept | High | Pending |
-| Nested table UI | High | Pending |
-| Owner controls (edit/delete/accept) | High | Pending |
-| Bidder controls (bid/edit/cancel) | High | Pending |
-| Dark premium UI theme | Medium | Pending |
-| Real-time bid updates | Low | Pending |
-| Email notifications | Low | Pending |
+### Landing Page
+- [x] Editorial hero section with featured collection
+- [x] Trending collections table with live data
+- [x] Recently sold marquee
+- [x] Dark theme with bronze (#b87333) accents
+
+### Collections Page
+- [x] Full collections list with pagination
+- [x] Expandable rows showing nested bid history
+- [x] Search bar (UI ready)
+- [x] Lazy loading images for performance
+- [x] Responsive table design
+
+### Bidding System
+- [x] Place bid server function with validation
+- [x] Bid form with presets (+10%, +25%, +50%)
+- [x] Minimum bid enforcement ($1.00 increment)
+- [x] Auth-aware UI (shows login prompt for guests)
+- [x] Real-time bid updates after placement
+- [x] Activity logging for audit trail
+
+### UI/UX
+- [x] Editorial design system (fonts, colors, spacing)
+- [x] Smooth animations (expand/collapse)
+- [x] Loading states and error handling
+- [x] Mobile responsive
 
 ---
 
-## Marketing Strategy
+## Remaining (Critical for Challenge)
 
-### Brand Positioning
-**Luxor Bids** — "Where serious collectors bid with confidence"
+### Bid Management
+- [ ] Accept bid functionality (for collection owners)
+- [ ] Auto-reject other bids when one is accepted
+- [ ] Edit own bid (before acceptance)
+- [ ] Cancel own bid (before acceptance)
 
-**Key Differentiators:**
-- 3% fee vs. auction houses' 25-30%
-- 7-day sale cycles vs. 6-month auction waits
-- Curated listings (no junk, all verified)
-- Premium dark aesthetic (Blur.io-inspired)
+### Collection Management
+- [ ] Create new collection form
+- [ ] Edit own collection
+- [ ] Delete own collection
+- [ ] Upload images (currently using Unsplash URLs)
 
-### Target Personas
-1. **Victoria** — Serious collector ($50K+ annual purchases)
-   - Values: Authenticity, exclusivity, fair pricing
-   - Pain point: Wasting time on fake items
-   
-2. **Marcus** — Estate curator
-   - Values: Speed, fair market value
-   - Pain point: Months-long auction timelines
-   
-3. **James** — NFT collector (new to physical)
-   - Values: Easy discovery, transparent pricing
-   - Pain point: Physical collectibles feels intimidating
+### Owner Controls
+- [ ] Accept/reject bid buttons (visible only to owner)
+- [ ] Collection status management
 
-### Copy Guidelines
-**Tone:** Professional but approachable, knowledgeable without gatekeeping
+### Edge Cases
+- [ ] Handle expired collections
+- [ ] Prevent bidding on own collections (server validation exists, UI check needed)
+- [ ] Bid validation edge cases
 
-**Words to Use:**
-- Curated, verified, serious, exclusive, transparent
-- Collection, acquisition, curation, floor price, escrow
-
-**Words to Avoid:**
-- Cheap, discount, bargain, flip, marketplace (too generic)
-
-### Key Messaging
-- "Sell in 7 days, keep 97% of the price"
-- "Every item verified, every seller vetted"
-- "The NFT experience, now for physical items"
-
-### Visual Identity
-- **Colors:** Deep charcoal (#0a0a0a) with amber accents (#f59e0b)
-- **Typography:** Bold headlines, monospace for prices/stats
-- **Style:** Dark premium, glassmorphism cards, NFT marketplace vibes
+### Documentation
+- [ ] README with setup instructions
+- [ ] API documentation
+- [ ] Deployment guide
 
 ---
 
 ## Tech Stack
 
-### Core Framework
-- **Framework:** TanStack Start
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS v4
-- **Router:** TanStack Router (file-based routing)
+| Layer | Technology |
+|-------|-----------|
+| Framework | TanStack Start |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL (Neon) |
+| ORM | Drizzle ORM |
+| Auth | Custom (bcrypt + sessions) |
+| Validation | Zod |
+| Animation | CSS + Framer Motion |
+| Icons | Lucide React |
 
-### Database & ORM
-- **Database:** PostgreSQL (Neon)
-- **ORM:** Drizzle ORM
-- **Connection:** Serverless Postgres via Neon
-- **Schema:**
-  - `users` — id, email, password_hash, name, created_at
-  - `collections` — id, name, description, stocks, price, owner_id, status, created_at
-  - `bids` — id, collection_id, price, user_id, status (pending/accepted/rejected), created_at
+---
 
-### Authentication
-- **Method:** Custom email/password (HTTP-only cookies)
-- **Password Hashing:** bcrypt
-- **Session:** Server-side sessions (stored in database)
-- **Protected Routes:** TanStack Router `beforeLoad` checks
+## Architecture Highlights
 
-### Backend
-- **Server Functions:** TanStack Start server functions (RPC-style)
-- **API Pattern:** Server functions called from components
-- **Validation:** Zod for input validation
+### State Management Pattern
+- **CollectionsContext**: Global state for collections list
+- **ID-based selection**: Components receive IDs, select their own data
+- **React.memo**: Primitive props for optimal re-renders
 
-### Frontend
-- **Components:** shadcn/ui
-- **Icons:** Lucide React (already installed)
-- **State:** TanStack Query for server state
-- **Forms:** TanStack Form + Zod
-- **Analytics:** PostHog (user tracking, funnel analysis)
-- **Error Tracking:** Sentry (error monitoring, performance tracking)
+### Database Indexes
+- `collections`: owner_idx, status_idx, created_idx
+- `bids`: collection_idx, user_idx, created_idx, status_idx
+- `sessions`: user_idx, expires_idx
 
-### Development Tools
-- **Build Tool:** Vite
-- **Package Manager:** pnpm
-- **Testing:** Vitest (already configured)
-- **Deployment:** Cloudflare Workers (wrangler)
+### Performance Optimizations
+- Lazy loading images
+- CSS GPU-accelerated animations
+- 20 items per page (pagination)
+- Database query optimization with joins
 
-### Project Structure
+---
+
+## Project Structure
+
 ```
-bidding-app/
-├── src/
-│   ├── routes/           # TanStack routes (file-based)
-│   │   ├── __root.tsx   # Root layout
-│   │   ├── index.tsx    # Landing page
-│   │   ├── sign-in.tsx  # Login page
-│   │   ├── sign-up.tsx  # Register page
-│   │   └── app/         # Protected app routes
-│   │       ├── index.tsx        # Dashboard/collections list
-│   │       └── collections/
-│   │           └── $id.tsx      # Collection detail
-│   ├── components/       # Reusable components
-│   │   ├── ui/          # shadcn components
-│   │   ├── collection-card.tsx
-│   │   ├── bid-table.tsx
-│   │   └── auth-forms/
-│   ├── lib/             # Utilities
-│   │   ├── db/          # Database config & schema
-│   │   ├── auth/        # Auth utilities
-│   │   └── utils.ts     # Helpers
-│   ├── hooks/           # Custom hooks
-│   └── styles/          # Global styles
-├── docs/                # Project documentation
-│   ├── project-state.md # This file
-│   └── product-marketing-context.md
-├── public/              # Static assets
-└── package.json
-```
-
-### Dependencies to Install
-```bash
-# Database (Neon PostgreSQL + Drizzle)
-pnpm add @neondatabase/serverless drizzle-orm
-pnpm add -D drizzle-kit
-
-# Auth
-pnpm add bcryptjs
-pnpm add -D @types/bcryptjs
-
-# Forms & Validation (TanStack Form)
-pnpm add @tanstack/react-form zod
-
-# UI Components (shadcn)
-# Use shadcn CLI to add: button, card, dialog, form, table, input, label
-
-# Analytics & Monitoring
-pnpm add posthog-js @sentry/react @sentry/tracing
-```
-
-### Environment Variables
-Create `.env` file:
-```env
-# Database
-DATABASE_URL="postgresql://username:password@hostname/dbname?sslmode=require"
-
-# Auth
-SESSION_SECRET="your-super-secret-session-key-min-32-chars"
-
-# Analytics (PostHog)
-VITE_POSTHOG_KEY="ph_project_api_key"
-VITE_POSTHOG_HOST="https://us.i.posthog.com"
-
-# Error Tracking (Sentry)
-VITE_SENTRY_DSN="https://xxx@xxx.ingest.sentry.io/xxx"
-SENTRY_AUTH_TOKEN="sentry_auth_token_for_source_maps"
+src/
+├── components/
+│   ├── collections/     # Collection table components
+│   │   ├── BidForm.tsx
+│   │   ├── BidHistory.tsx
+│   │   ├── CollectionRow.tsx
+│   │   ├── CollectionTable.tsx
+│   │   ├── CollectionsContext.tsx
+│   │   ├── Pagination.tsx
+│   │   └── SearchBar.tsx
+│   └── Header.tsx
+├── lib/
+│   ├── auth/
+│   │   ├── AuthContext.tsx
+│   │   ├── cookie.ts
+│   │   ├── password.ts
+│   │   └── session.ts
+│   ├── db/
+│   │   ├── schema.ts
+│   │   ├── client.ts
+│   │   └── seed.ts
+│   ├── server/
+│   │   ├── auth.server.ts
+│   │   ├── bids.server.ts
+│   │   └── collections.server.ts
+│   └── utils/
+│       └── formatters.ts
+├── routes/
+│   ├── __root.tsx
+│   ├── index.tsx        # Landing page
+│   ├── collections.tsx  # Collections list
+│   ├── login.tsx
+│   ├── register.tsx
+│   └── app/
+│       └── index.tsx    # Protected dashboard
+└── styles.css
 ```
 
 ---
 
-## Current Status
+## Next Priority
 
-### Completed
-- [x] Project initialized (TanStack Start)
-- [x] Product marketing context created
-- [x] Project state document created (this file)
+### 1. Accept Bid (HIGH)
+- Server function to accept bid
+- Auto-reject other bids logic
+- Update collection status to 'sold'
+- UI: Accept button for owners only
 
-### In Progress
-- [ ] Neon PostgreSQL database setup
-- [ ] Drizzle ORM configuration
-- [ ] Schema design
-- [ ] Seed data generation (100+ collections, 1000+ bids, 10+ users)
+### 2. Create Collection (HIGH)
+- Form with TanStack Form + Zod
+- Image upload (or URL input for now)
+- Set starting price
+- Wire to server function
 
-### Pending
-- [ ] Authentication system (custom email/password)
-- [ ] Server functions (CRUD operations)
-- [ ] Landing page UI
-- [ ] Collection list UI (nested table)
-- [ ] Bid management UI
-- [ ] Forms (TanStack Form + Zod)
-- [ ] PostHog analytics integration
-- [ ] Sentry error tracking setup
-- [ ] README documentation
-- [ ] Monitoring/scalability docs
+### 3. Edit/Cancel Bid (MEDIUM)
+- Edit own bid (if not accepted)
+- Cancel own bid
+- Server validation
+
+### 4. Owner Controls (MEDIUM)
+- Show accept/reject only to owner
+- Edit/delete collection buttons
 
 ---
 
-## Key Decisions
+## Known Issues
 
-### Why TanStack Start?
-- Workspace already configured for TanStack Start
-- Excellent DX with RPC-style server functions
-- File-based routing already set up
-- Demonstrates modern React framework knowledge
-
-### Why PostgreSQL (Neon) instead of SQLite?
-- Production-grade database
-- Serverless Postgres fits well with TanStack Start on Cloudflare Workers
-- Better for demonstrating real-world skills
-- Can handle concurrent writes better than SQLite
-
-### Why Custom Auth instead of Clerk/Auth0?
-- Shows understanding of auth fundamentals
-- Simpler for coding challenge context
-- No external service dependencies
-- Email/password is universally understood
-
-### Why TanStack Form?
-- Native TanStack ecosystem integration
-- Better performance with fine-grained reactivity
-- Headless design works perfectly with shadcn/ui
-- Type-safe by default
-
-### Why Blur.io-inspired Design?
-- Premium aesthetic differentiates from generic demos
-- Dark theme is modern and professional
-- NFT marketplace patterns translate well to physical collectibles
-- Shows attention to UX/UI details
+1. **Images**: Using external Unsplash URLs (documented as future improvement)
+2. **Search**: UI present but not wired to backend
+3. **Pagination**: Shows page info but doesn't change pages yet
+4. **Real-time**: No WebSocket (page refresh needed to see new bids)
 
 ---
 
-## Next Steps for Next Agent
+## Future Improvements (Documented)
 
-1. **Database Setup:**
-   - Sign up for Neon (free tier)
-   - Install Drizzle ORM + Neon adapter
-   - Create schema (users, collections, bids)
-   - Generate and run migrations
-   - Create seed script (100+ collections, 1000+ bids, 10+ users)
-
-2. **Authentication:**
-   - Create auth utilities (hash password, verify password, session management)
-   - Create server functions (signUp, signIn, signOut, getSession)
-   - Create login/register pages with TanStack Form
-   - Set up protected route middleware with beforeLoad
-
-3. **Core Features:**
-   - Collection list page with nested bid tables
-   - Create/update collection forms (TanStack Form)
-   - Place/edit/cancel bid functionality
-   - Accept bid (with auto-reject others logic)
-
-4. **UI Polish:**
-   - Install shadcn components
-   - Implement dark theme with amber accents
-   - Add loading states and error handling
-   - Responsive design
+- [Cloudflare Images optimization](../docs/future-improvements/features/image-upload.md)
+- [Enhanced authentication (OAuth, forgot password)](../docs/future-improvements/features/enhanced-authentication.md)
+- [Real-time updates (WebSocket/SSE)](../docs/future-improvements/features/real-time-updates.md)
+- [Payment integration](../docs/future-improvements/features/payment-integration.md)
+- [Search & discovery](../docs/future-improvements/features/search-discovery.md)
 
 ---
 
-## Resources
+## Testing Checklist
 
-### Documentation
-- [Product Marketing Context](./product-marketing-context.md)
-- [Challenge Requirements](https://github.com/LuxorLabs/frontend-coding-challenge)
-
-### Design References
-- Blur.io (NFT marketplace aesthetic)
-- Christie's/Sotheby's (auction house elegance)
-- OpenSea (Web3 UX patterns)
-
-### Technical References
-- [TanStack Start Docs](https://tanstack.com/start/latest)
-- [TanStack Form Docs](https://tanstack.com/form/latest)
-- [Drizzle ORM Docs](https://orm.drizzle.team/)
-- [Neon PostgreSQL Docs](https://neon.tech/docs)
-- [shadcn/ui Docs](https://ui.shadcn.com/)
+- [ ] Register new account
+- [ ] Login with existing account
+- [ ] Place bid on collection
+- [ ] View bid history
+- [ ] Accept bid as owner
+- [ ] Create new collection
+- [ ] Edit collection
+- [ ] Delete collection
+- [ ] Bid validation (min amount, own collection)
 
 ---
 
-## Notes for Future Agents
-
-**If resuming this project:**
-1. Read this file first
-2. Read the product marketing context
-3. Check `package.json` for current dependencies
-4. Look at existing routes in `src/routes/`
-5. Run `pnpm dev` to see current state
-
-**Important:**
-- Use real copy from marketing context, not placeholder text
-- Maintain dark premium aesthetic throughout
-- Keep code clean and well-commented
-- Test all CRUD operations before moving to next feature
-- Update this file as progress is made
-
-**Questions?** Check the challenge requirements or marketing context first.
-
----
-
-*This document should be updated as the project progresses. Mark tasks as complete and add new context as decisions are made.*
+*Last Updated: February 12, 2026 - Post bidding implementation*

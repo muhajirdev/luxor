@@ -1,9 +1,17 @@
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Menu, X, Search } from 'lucide-react'
+import { Menu, X, Search, User, LogOut } from 'lucide-react'
+import { useAuth } from '@/lib/auth/AuthContext'
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const { user, signOut } = useAuth()
+  const isLoggedIn = !!user
+
+  const handleSignOut = async () => {
+    await signOut()
+    setIsOpen(false)
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#1a1a1a] bg-[#000000]/90 backdrop-blur-md">
@@ -53,18 +61,39 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-4 lg:gap-6">
-            <Link
-              to="/login"
-              className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
-            >
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="btn-primary"
-            >
-              Begin Collecting
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/app"
+                  className="flex items-center gap-2 label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
+                >
+                  <User className="h-4 w-4" />
+                  {user?.name}
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9] bg-transparent border-none cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="btn-primary"
+                >
+                  Begin Collecting
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -110,7 +139,26 @@ export function Header() {
 
             <div className="h-px bg-[#1a1a1a]" />
 
-            <div className="space-y-4">
+            {isLoggedIn ? (
+              <div className="space-y-4">
+                <Link
+                  to="/app"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
+                >
+                  <User className="h-5 w-5" />
+                  {user?.name}
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9] bg-transparent border-none cursor-pointer w-full text-left"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
                 <Link
                   to="/login"
                   onClick={() => setIsOpen(false)}
@@ -118,14 +166,15 @@ export function Header() {
                 >
                   Login
                 </Link>
-              <Link
-                to="/register"
-                onClick={() => setIsOpen(false)}
-                className="btn-primary w-full justify-center"
-              >
-                Begin Collecting
-              </Link>
-            </div>
+                <Link
+                  to="/register"
+                  onClick={() => setIsOpen(false)}
+                  className="btn-primary w-full justify-center"
+                >
+                  Begin Collecting
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

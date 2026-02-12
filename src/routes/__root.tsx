@@ -1,4 +1,6 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { AuthProvider } from '@/lib/auth/AuthContext'
+import { getCurrentUser } from '@/lib/server/auth.server'
 
 import appCss from '../styles.css?url'
 
@@ -38,17 +40,26 @@ export const Route = createRootRoute({
     ],
   }),
 
+  loader: async () => {
+    const userResult = await getCurrentUser()
+    return { user: userResult.success ? userResult.user : null }
+  },
+
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const data = Route.useLoaderData()
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body className="bg-slate-950 text-slate-200 antialiased">
-        {children}
+        <AuthProvider initialUser={data.user}>
+          {children}
+        </AuthProvider>
         <Scripts />
       </body>
     </html>
