@@ -1,12 +1,15 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Menu, X, Search, User, LogOut } from 'lucide-react'
+import { Menu, X, User, LogOut } from 'lucide-react'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { HeaderSearch } from './HeaderSearch'
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const { user, signOut } = useAuth()
   const isLoggedIn = !!user
+  const location = useLocation()
+  const isCollectionsPage = location.pathname === '/collections'
 
   const handleSignOut = async () => {
     await signOut()
@@ -31,17 +34,12 @@ export function Header() {
           </div>
         </Link>
 
-        {/* Search Bar - Editorial */}
-        <div className="hidden flex-1 px-8 lg:px-12 xl:px-16 md:block">
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4a4a4a]" />
-            <input
-              type="text"
-              placeholder="Search catalog..."
-              className="w-full border border-[#1a1a1a] bg-[#0a0a0a] py-3 pl-12 pr-4 font-editorial text-sm text-[#fafaf9] placeholder-[#4a4a4a] transition-all duration-300 focus:border-[#b87333] focus:outline-none"
-            />
+        {/* Search Bar - Hidden on collections page */}
+        {!isCollectionsPage && (
+          <div className="hidden flex-1 px-8 lg:px-12 xl:px-16 md:block">
+            <HeaderSearch className="max-w-md mx-auto" />
           </div>
-        </div>
+        )}
 
         {/* Desktop Navigation + CTA Group */}
         <div className="hidden items-center gap-8 lg:gap-12 md:flex">
@@ -110,15 +108,10 @@ export function Header() {
       {isOpen && (
         <div className="absolute left-0 right-0 border-b border-[#1a1a1a] bg-[#000000]/98 backdrop-blur-xl md:hidden">
           <div className="space-y-6 px-6 py-8">
-            {/* Mobile Search */}
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4a4a4a]" />
-              <input
-                type="text"
-                placeholder="Search catalog..."
-                className="w-full border border-[#1a1a1a] bg-[#0a0a0a] py-4 pl-12 pr-4 font-editorial text-base text-[#fafaf9] placeholder-[#4a4a4a] focus:border-[#b87333] focus:outline-none"
-              />
-            </div>
+            {/* Mobile Search - Hidden on collections page */}
+            {!isCollectionsPage && (
+              <HeaderSearch />
+            )}
 
             <div className="space-y-4">
               <Link

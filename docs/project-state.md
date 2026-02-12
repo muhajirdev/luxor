@@ -206,7 +206,7 @@ src/
 - [Enhanced authentication (OAuth, forgot password)](../docs/future-improvements/features/enhanced-authentication.md)
 - [Real-time updates (WebSocket/SSE)](../docs/future-improvements/features/real-time-updates.md)
 - [Payment integration](../docs/future-improvements/features/payment-integration.md)
-- [Search & discovery](../docs/future-improvements/features/search-discovery.md)
+- [Search & discovery](../docs/future-improvements/features/search-discovery.md) - **✅ Basic search implemented**, see `src/components/collections/README.md`
 
 ---
 

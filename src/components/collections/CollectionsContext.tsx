@@ -29,7 +29,7 @@
  * 
  * @see docs/architecture.md for full pattern documentation
  */
-import { createContext, useContext, useState, useMemo, useCallback } from 'react'
+import { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react'
 
 export interface Collection {
   id: string
@@ -97,11 +97,19 @@ export function useCollection(id: string) {
 interface CollectionsProviderProps {
   children: React.ReactNode
   data: CollectionsData
+  initialSearch?: string
+  onSearch?: (query: string) => void
 }
 
-export function CollectionsProvider({ children, data }: CollectionsProviderProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+export function CollectionsProvider({ children, data, initialSearch = '', onSearch }: CollectionsProviderProps) {
+  const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [currentPage, setCurrentPage] = useState(data.pagination.page)
+
+  // Sync search query with URL
+  const handleSetSearchQuery = useCallback((query: string) => {
+    setSearchQuery(query)
+    onSearch?.(query)
+  }, [onSearch])
 
   // Memoize the lookup map for O(1) selection by ID
   const collectionMap = useMemo(() => {
@@ -114,15 +122,8 @@ export function CollectionsProvider({ children, data }: CollectionsProviderProps
     return (id: string) => collectionMap.get(id)
   }, [collectionMap])
 
-  const filteredCollections = useMemo(() => {
-    if (!searchQuery.trim()) return data.collections
-    const query = searchQuery.toLowerCase()
-    return data.collections.filter(c => 
-      c.name.toLowerCase().includes(query) ||
-      c.seller.toLowerCase().includes(query) ||
-      c.lot.toLowerCase().includes(query)
-    )
-  }, [data.collections, searchQuery])
+  // Server-side search - no client-side filtering needed
+  const filteredCollections = data.collections
 
   const [refreshKey, setRefreshKey] = useState(0)
 
@@ -130,12 +131,17 @@ export function CollectionsProvider({ children, data }: CollectionsProviderProps
     setRefreshKey(prev => prev + 1)
   }, [])
 
+  // Sync with URL search changes
+  useEffect(() => {
+    setSearchQuery(initialSearch)
+  }, [initialSearch])
+
   const value = useMemo(() => ({
     collections: data.collections,
     getCollection,
     pagination: { ...data.pagination, page: currentPage },
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: handleSetSearchQuery,
     filteredCollections,
     goToPage: setCurrentPage,
     refreshCollections,
@@ -149,6 +155,7 @@ export function CollectionsProvider({ children, data }: CollectionsProviderProps
     filteredCollections,
     refreshCollections,
     refreshKey,
+    handleSetSearchQuery,
   ])
 
   return (

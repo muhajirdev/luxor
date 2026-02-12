@@ -1,5 +1,6 @@
-import { createFileRoute, useSearch, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
+import { useCallback } from 'react'
 import { Header } from '@/components/Header'
 import { getCollectionsListServer } from '@/lib/server/collections.server'
 import {
@@ -27,9 +28,17 @@ export const Route = createFileRoute('/collections')({
 
 function CollectionsPage() {
   const data = Route.useLoaderData()
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
+
+  const handleSearch = useCallback((query: string) => {
+    navigate({
+      search: (prev) => ({ ...prev, q: query || undefined }),
+    })
+  }, [navigate])
 
   return (
-    <CollectionsProvider data={data}>
+    <CollectionsProvider data={data} initialSearch={search.q || ''} onSearch={handleSearch}>
       <div className="min-h-screen bg-[#000000] relative">
         <Header />
 
