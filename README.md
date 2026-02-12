@@ -42,6 +42,9 @@ Using [Design Guidelines](./docs/design-guidelines.md) optimized for rapid AI-as
 ### Type-Safe Architecture
 **No REST APIs.** Using TanStack Start server functions for 100% end-to-end type safety from database to UI.
 
+### Type-Safe Event Tracking
+Analytics events are defined as a TypeScript constant with type-inferred properties. TypeScript provides autocomplete for event names and validates property types at compile time. Documentation is auto-generated from the code, ensuring it never goes out of sync.
+
 ### Database
 PostgreSQL (Neon) with explicit query builders via Drizzle ORM for type-safe data access.
 
