@@ -1,15 +1,529 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..900;1,8..60,400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import "tailwindcss";
 
-body {
-  @apply m-0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+  /* Editorial Color Palette */
+  --color-black: #000000;
+  --color-void: #0a0a0a;
+  --color-charcoal: #141414;
+  --color-graphite: #1a1a1a;
+  --color-stone: #2a2a2a;
+  --color-pewter: #4a4a4a;
+  --color-silver: #8a8a8a;
+  --color-ash: #b0b0b0;
+  --color-cloud: #d0d0d0;
+  --color-fog: #e8e8e8;
+  --color-cream: #fafaf9;
+  --color-ivory: #f5f5f0;
+  
+  /* Accent Colors */
+  --color-bronze: #b87333;
+  --color-bronze-light: #c9955d;
+  --color-terracotta: #c4704f;
+  --color-gold: #c9a227;
+  --color-warm-white: #fdfcf8;
+  
+  /* Fluid Spacing */
+  --space-xs: clamp(0.5rem, 0.8vw, 0.75rem);
+  --space-sm: clamp(0.75rem, 1vw, 1rem);
+  --space-md: clamp(1rem, 1.5vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 2.5vw, 2.5rem);
+  --space-xl: clamp(2rem, 4vw, 4rem);
+  --space-2xl: clamp(3rem, 6vw, 6rem);
+  --space-3xl: clamp(4rem, 8vw, 8rem);
+  --space-4xl: clamp(6rem, 12vw, 12rem);
+  
+  /* Fluid Typography */
+  --text-xs: clamp(0.625rem, 0.7vw, 0.75rem);
+  --text-sm: clamp(0.75rem, 0.85vw, 0.875rem);
+  --text-base: clamp(0.875rem, 1vw, 1rem);
+  --text-lg: clamp(1rem, 1.25vw, 1.125rem);
+  --text-xl: clamp(1.125rem, 1.5vw, 1.375rem);
+  --text-2xl: clamp(1.375rem, 2vw, 1.75rem);
+  --text-3xl: clamp(1.75rem, 2.75vw, 2.5rem);
+  --text-4xl: clamp(2.25rem, 3.5vw, 3.5rem);
+  --text-5xl: clamp(2.75rem, 4.5vw, 5rem);
+  --text-6xl: clamp(3.5rem, 6vw, 7rem);
+  --text-7xl: clamp(4rem, 8vw, 9rem);
+  --text-display: clamp(5rem, 12vw, 15rem);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+body {
+  @apply m-0 bg-[#000000] text-[#fafaf9] antialiased;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial Typography */
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.font-editorial {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.font-mono {
+  font-family: 'Space Mono', 'Fira Code', monospace;
+}
+
+/* Display Typography */
+.headline-xl {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: var(--text-7xl);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+}
+
+.headline-lg {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: var(--text-6xl);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.headline-md {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: var(--text-5xl);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.headline-sm {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: var(--text-4xl);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+/* Body Typography */
+.body-xl {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: var(--text-xl);
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.body-lg {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: var(--text-lg);
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+.body-md {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: var(--text-base);
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+.body-sm {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Label Typography */
+.label {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.label-sm {
+  font-family: 'Space Mono', monospace;
+  font-size: calc(var(--text-xs) * 0.9);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Custom scrollbar - refined dark */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-stone);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-pewter);
+}
+
+/* Editorial Frame */
+.editorial-frame {
+  position: relative;
+  border: 1px solid var(--color-stone);
+  padding: 8px;
+  background: var(--color-void);
+}
+
+.editorial-frame::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--color-charcoal);
+  pointer-events: none;
+}
+
+.editorial-frame-inner {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Editorial Card */
+.editorial-card {
+  position: relative;
+  background: var(--color-charcoal);
+  border: 1px solid var(--color-stone);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.editorial-card:hover {
+  border-color: var(--color-bronze);
+  transform: translateY(-4px);
+}
+
+/* Editorial Rule */
+.editorial-rule {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-bronze), transparent);
+}
+
+.editorial-rule-full {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-bronze), var(--color-stone), transparent);
+}
+
+/* Lot Number Styling */
+.lot-number {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--color-bronze);
+}
+
+.lot-number-lg {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-bronze);
+}
+
+/* Issue Badge */
+.issue-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-stone);
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.15em;
+  color: var(--color-silver);
+}
+
+.issue-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--color-bronze);
+  border-radius: 50%;
+}
+
+/* Bronze Text Accent */
+.text-bronze {
+  color: var(--color-bronze);
+}
+
+.text-terracotta {
+  color: var(--color-terracotta);
+}
+
+.text-silver {
+  color: var(--color-silver);
+}
+
+/* Button Styles - Editorial */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: var(--color-cream);
+  color: var(--color-black);
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-cream);
+}
+
+.btn-primary:hover {
+  background: transparent;
+  color: var(--color-cream);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: transparent;
+  color: var(--color-silver);
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-stone);
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-bronze);
+  color: var(--color-cream);
+}
+
+/* Table Styling - Editorial */
+.editorial-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.editorial-table th {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-silver);
+  padding: 1.5rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-stone);
+}
+
+.editorial-table td {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid var(--color-charcoal);
+  transition: background-color 0.2s ease;
+}
+
+.editorial-table tr:hover td {
+  background-color: rgba(184, 115, 51, 0.03);
+}
+
+/* Status Badge - Editorial */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  font-family: 'Space Mono', monospace;
+  font-size: calc(var(--text-xs) * 0.85);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.status-live {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.status-live::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #4ade80;
+  border-radius: 50%;
+  animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-live {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+/* Tabular Numbers */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Price Styling */
+.price-current {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-cream);
+}
+
+.price-starting {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-ash);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-stone);
+}
+
+/* Featured Image - Editorial */
+.editorial-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.editorial-image img {
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.editorial-image:hover img {
+  transform: scale(1.03);
+}
+
+.editorial-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  pointer-events: none;
+}
+
+/* Section Marker */
+.section-marker {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-bronze);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-marker::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-stone);
+  max-width: 100px;
+}
+
+/* Pull Quote */
+.pull-quote {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: var(--text-3xl);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--color-silver);
+  border-left: 2px solid var(--color-bronze);
+  padding-left: 1.5rem;
+}
+
+/* Grid Lines - Editorial */
+.grid-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, var(--color-stone) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-stone) 1px, transparent 1px);
+  background-size: 100px 100px;
+  opacity: 0.3;
+}
+
+/* Noise Texture */
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Gradient Accent */
+.gradient-bronze {
+  background: linear-gradient(135deg, var(--color-bronze) 0%, var(--color-terracotta) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Kicker Text */
+.kicker {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-bronze);
+}
+
+/* Date Stamp */
+.date-stamp {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  color: var(--color-ash);
+}
+
+/* Horizontal Scroll - Hide Scrollbar */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .headline-xl {
+    font-size: var(--text-5xl);
+  }
+  
+  .headline-lg {
+    font-size: var(--text-4xl);
+  }
+  
+  .headline-md {
+    font-size: var(--text-3xl);
+  }
 }

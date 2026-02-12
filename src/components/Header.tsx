@@ -1,177 +1,133 @@
 import { Link } from '@tanstack/react-router'
-
 import { useState } from 'react'
-import {
-  ChevronDown,
-  ChevronRight,
-  Home,
-  Menu,
-  Network,
-  SquareFunction,
-  StickyNote,
-  X,
-} from 'lucide-react'
+import { Menu, X, Search } from 'lucide-react'
 
-export default function Header() {
+export function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  const [groupedExpanded, setGroupedExpanded] = useState<
-    Record<string, boolean>
-  >({})
 
   return (
-    <>
-      <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
-        <h1 className="ml-4 text-xl font-semibold">
-          <Link to="/">
-            <img
-              src="/tanstack-word-logo-white.svg"
-              alt="TanStack Logo"
-              className="h-10"
-            />
-          </Link>
-        </h1>
-      </header>
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#1a1a1a] bg-[#000000]/90 backdrop-blur-md">
+      <div className="mx-auto flex h-20 max-w-[1600px] items-center justify-between px-6 lg:px-12">
+        {/* Logo - Editorial Style */}
+        <Link to="/" className="flex items-center gap-4 group">
+          <div className="relative flex h-12 w-12 items-center justify-center border border-[#2a2a2a] bg-[#0a0a0a] transition-all duration-500 group-hover:border-[#b87333]">
+            <span className="font-display text-2xl font-bold text-[#fafaf9]">L</span>
+          </div>
+          <div className="hidden sm:flex flex-col">
+            <span className="font-display text-xl font-semibold tracking-tight text-[#fafaf9]">
+              Luxor
+            </span>
+            <span className="label-sm text-[#8a8a8a]">
+              Auction House
+            </span>
+          </div>
+        </Link>
 
-      <aside
-        className={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold">Navigation</h2>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-            aria-label="Close menu"
-          >
-            <X size={24} />
-          </button>
+        {/* Search Bar - Editorial */}
+        <div className="hidden flex-1 px-12 md:block">
+          <div className="relative max-w-md">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4a4a4a]" />
+            <input
+              type="text"
+              placeholder="Search catalog..."
+              className="w-full border border-[#1a1a1a] bg-[#0a0a0a] py-3 pl-12 pr-4 font-editorial text-sm text-[#fafaf9] placeholder-[#4a4a4a] transition-all duration-300 focus:border-[#b87333] focus:outline-none"
+            />
+          </div>
         </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center gap-8 md:flex">
           <Link
-            to="/"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
+            to="/collections"
+            className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
           >
-            <Home size={20} />
-            <span className="font-medium">Home</span>
+            Catalog
           </Link>
-
-          {/* Demo Links Start */}
-
           <Link
-            to="/demo/start/server-funcs"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
+            to="/how-it-works"
+            className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
           >
-            <SquareFunction size={20} />
-            <span className="font-medium">Start - Server Functions</span>
+            Guide
           </Link>
+        </nav>
 
+        {/* Desktop CTA */}
+        <div className="hidden items-center gap-6 md:flex">
           <Link
-            to="/demo/start/api-request"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
+            to="/login"
+            className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
           >
-            <Network size={20} />
-            <span className="font-medium">Start - API Request</span>
+            Sign In
           </Link>
+          <Link
+            to="/register"
+            className="btn-primary"
+          >
+            Begin Collecting
+          </Link>
+        </div>
 
-          <div className="flex flex-row justify-between">
-            <Link
-              to="/demo/start/ssr"
-              onClick={() => setIsOpen(false)}
-              className="flex-1 flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-              activeProps={{
-                className:
-                  'flex-1 flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-              }}
-            >
-              <StickyNote size={20} />
-              <span className="font-medium">Start - SSR Demos</span>
-            </Link>
-            <button
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              onClick={() =>
-                setGroupedExpanded((prev) => ({
-                  ...prev,
-                  StartSSRDemo: !prev.StartSSRDemo,
-                }))
-              }
-            >
-              {groupedExpanded.StartSSRDemo ? (
-                <ChevronDown size={20} />
-              ) : (
-                <ChevronRight size={20} />
-              )}
-            </button>
-          </div>
-          {groupedExpanded.StartSSRDemo && (
-            <div className="flex flex-col ml-4">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex h-10 w-10 items-center justify-center border border-[#1a1a1a] text-[#8a8a8a] transition-all duration-300 hover:border-[#b87333] hover:text-[#fafaf9] md:hidden"
+        >
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
+
+      {/* Mobile Navigation */}
+      {isOpen && (
+        <div className="absolute left-0 right-0 border-b border-[#1a1a1a] bg-[#000000]/98 backdrop-blur-xl md:hidden">
+          <div className="space-y-6 px-6 py-8">
+            {/* Mobile Search */}
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4a4a4a]" />
+              <input
+                type="text"
+                placeholder="Search catalog..."
+                className="w-full border border-[#1a1a1a] bg-[#0a0a0a] py-4 pl-12 pr-4 font-editorial text-base text-[#fafaf9] placeholder-[#4a4a4a] focus:border-[#b87333] focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-4">
               <Link
-                to="/demo/start/ssr/spa-mode"
+                to="/collections"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
+                className="block font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
               >
-                <StickyNote size={20} />
-                <span className="font-medium">SPA Mode</span>
+                Catalog
               </Link>
-
               <Link
-                to="/demo/start/ssr/full-ssr"
+                to="/how-it-works"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
+                className="block font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
               >
-                <StickyNote size={20} />
-                <span className="font-medium">Full SSR</span>
-              </Link>
-
-              <Link
-                to="/demo/start/ssr/data-only"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
-              >
-                <StickyNote size={20} />
-                <span className="font-medium">Data Only</span>
+                Guide
               </Link>
             </div>
-          )}
 
-          {/* Demo Links End */}
-        </nav>
-      </aside>
-    </>
+            <div className="h-px bg-[#1a1a1a]" />
+
+            <div className="space-y-4">
+              <Link
+                to="/login"
+                onClick={() => setIsOpen(false)}
+                className="block font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setIsOpen(false)}
+                className="btn-primary w-full justify-center"
+              >
+                Begin Collecting
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
   )
 }

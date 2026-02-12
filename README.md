@@ -1,290 +1,207 @@
-Welcome to your new TanStack app! 
+# Luxor Bids
 
-# Getting Started
+A premium full-stack bidding marketplace where serious collectors bid with confidence. Built with TanStack Start, PostgreSQL, and Tailwind CSS.
 
-To run this application:
+## Features
 
+- **Collection Management** - Create, edit, and manage collectible item listings
+- **Bidding System** - Place, update, and cancel bids on collections
+- **Accept Bid Workflow** - Collection owners can accept bids (auto-rejects all others)
+- **Nested Table UI** - Expandable collections showing all associated bids
+- **Role-Based Controls** - Different permissions for collection owners vs bidders
+- **Dark Premium Design** - Blur.io-inspired aesthetic with amber accents
+
+## Tech Stack
+
+- **Framework**: [TanStack Start](https://tanstack.com/start) with file-based routing
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Database**: PostgreSQL (Neon) with [Drizzle ORM](https://orm.drizzle.team/)
+- **Authentication**: Custom email/password with HTTP-only cookies
+- **Forms**: TanStack Form + Zod validation
+- **UI Components**: shadcn/ui
+- **Testing**: Vitest + React Testing Library
+- **Deployment**: Cloudflare Workers
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm package manager
+- PostgreSQL database (Neon recommended)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd bidding-app
+```
+
+2. Install dependencies:
 ```bash
 pnpm install
-pnpm start
 ```
 
-# Building For Production
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-To build this application for production:
+Edit `.env` with your configuration:
+```env
+# Database
+DATABASE_URL="postgresql://username:password@hostname/dbname?sslmode=require"
+
+# Auth
+SESSION_SECRET="your-super-secret-session-key-min-32-chars"
+```
+
+4. Set up the database:
+```bash
+# Generate migrations
+pnpm drizzle-kit generate
+
+# Run migrations (manually in production)
+pnpm drizzle-kit migrate
+
+# Seed with sample data
+pnpm tsx src/lib/db/seed.ts
+```
+
+5. Start the development server:
+```bash
+pnpm dev
+```
+
+The app will be available at `http://localhost:3000`
+
+## Available Scripts
 
 ```bash
-pnpm build
+# Development
+pnpm dev              # Start dev server on port 3000
+pnpm build            # Production build
+pnpm serve            # Preview production build locally
+
+# Testing
+pnpm test             # Run all tests
+pnpm test -- --grep "pattern"  # Run specific tests
+
+# Database
+pnpm drizzle-kit generate    # Generate migration files
+pnpm drizzle-kit migrate     # Run migrations (manual only)
+pnpm tsx src/lib/db/seed.ts  # Seed database with sample data
+
+# Deployment
+pnpm deploy           # Build and deploy to Cloudflare Workers
+pnpm preview          # Build and preview locally
 ```
+
+## Project Structure
+
+```
+bidding-app/
+├── src/
+│   ├── routes/              # TanStack routes (file-based)
+│   │   ├── __root.tsx      # Root layout
+│   │   ├── index.tsx       # Landing page
+│   │   ├── login.tsx       # Login page
+│   │   ├── register.tsx    # Registration page
+│   │   ├── collections.tsx # Collections list page
+│   │   └── ...
+│   ├── components/          # Reusable components
+│   │   ├── ui/             # shadcn/ui components
+│   │   └── Header.tsx      # Navigation header
+│   ├── lib/                # Utilities
+│   │   ├── db/            # Database schema & client
+│   │   ├── auth/          # Authentication utilities
+│   │   └── utils.ts       # Helper functions
+│   ├── hooks/             # Custom React hooks
+│   └── styles/            # Global styles
+├── drizzle/               # Database migrations
+├── docs/                  # Project documentation
+├── public/                # Static assets
+└── package.json
+```
+
+## Database Schema
+
+### Users
+- `id`, `email`, `password_hash`, `name`, `created_at`
+
+### Collections
+- `id`, `name`, `description`, `stocks`, `price`, `owner_id`, `status`, `created_at`
+
+### Bids
+- `id`, `collection_id`, `price`, `user_id`, `status` (pending/accepted/rejected), `created_at`
+
+## Architecture Decisions
+
+### Why TanStack Start?
+- Workspace already configured for TanStack Start
+- RPC-style server functions eliminate REST boilerplate
+- File-based routing is intuitive
+- Demonstrates modern React framework knowledge
+
+### Why PostgreSQL (Neon)?
+- Production-grade database with serverless scaling
+- Better concurrent write handling than SQLite
+- Fits well with Cloudflare Workers deployment
+
+### Why Custom Authentication?
+- Shows understanding of auth fundamentals
+- No external service dependencies
+- Simpler for challenge context
+
+### Why TanStack Form?
+- Native TanStack ecosystem integration
+- Fine-grained reactivity for better performance
+- Type-safe by default
+- Headless design works with shadcn/ui
 
 ## Testing
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+Run the test suite:
 
 ```bash
 pnpm test
 ```
 
-## Styling
+Tests are located alongside components using the `.test.tsx` pattern.
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+## Deployment
 
+### Cloudflare Workers
 
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
+1. Configure `wrangler.jsonc` with your account details
+2. Run the deploy command:
 ```bash
-pnpm add @tanstack/react-query @tanstack/react-query-devtools
+pnpm deploy
 ```
 
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
+### Environment Variables for Production
 
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+Ensure these are set in your deployment environment:
 
-// ...
+- `DATABASE_URL` - PostgreSQL connection string
+- `SESSION_SECRET` - Secret key for session encryption
 
-const queryClient = new QueryClient();
+## Contributing
 
-// ...
+1. Follow the existing code style (no semicolons, single quotes, trailing commas)
+2. Use `@/` imports for internal modules
+3. Use explicit Drizzle query builders (not `db.query`)
+4. Add tests for new features
+5. Run `pnpm test` and `pnpm build` before committing
 
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
+## Documentation
 
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
+- [Project State](./docs/project-state.md) - Current progress and roadmap
+- [Product Marketing Context](./docs/product-marketing-context.md) - Brand guidelines and messaging
+- [TODO List](./TODO.md) - Development tasks and priorities
 
-You can also add TanStack Query Devtools to the root route (optional).
+## License
 
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-pnpm add @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+[MIT License](./LICENSE)
