@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { collections, users, bids } from '@/lib/db/schema'
-import { eq, desc, count, max, ilike, or } from 'drizzle-orm'
+import { eq, desc, count, max, ilike, or, and, gte, lte } from 'drizzle-orm'
 
 export const getTrendingCollectionsServer = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -109,28 +109,62 @@ function formatPrice(cents: number): string {
   return `$${dollars.toFixed(2)}`
 }
 
-// Collections list with pagination and search
+// Collections list with pagination, search, and filters
 const getCollectionsListSchema = z.object({
   search: z.string().optional(),
   page: z.number().default(1),
   limit: z.number().default(20),
+  status: z.enum(['all', 'active', 'sold']).optional().default('all'),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
+  category: z.string().optional(),
+  ownerId: z.string().uuid().optional(),
 })
 
 export const getCollectionsListServer = createServerFn({ method: 'GET' })
   .inputValidator(getCollectionsListSchema)
   .handler(async ({ data }) => {
-    const { search, page, limit } = data
+    const { search, page, limit, status, minPrice, maxPrice, category, ownerId } = data
     const offset = (page - 1) * limit
 
-    // Build search condition
-    const searchCondition = search && search.trim()
-      ? or(
+    // Build filter conditions
+    const conditions = []
+
+    // Search condition
+    if (search && search.trim()) {
+      conditions.push(
+        or(
           ilike(collections.name, `%${search}%`),
           ilike(collections.description, `%${search}%`)
         )
-      : undefined
+      )
+    }
 
-    // Get collections with search filter
+    // Status filter
+    if (status && status !== 'all') {
+      conditions.push(eq(collections.status, status))
+    }
+
+    // Price range filters
+    if (minPrice !== undefined && minPrice > 0) {
+      conditions.push(gte(collections.startingPrice, minPrice * 100))
+    }
+    if (maxPrice !== undefined && maxPrice > 0) {
+      conditions.push(lte(collections.startingPrice, maxPrice * 100))
+    }
+
+    // Owner filter (my collections)
+    if (ownerId) {
+      conditions.push(eq(collections.ownerId, ownerId))
+    }
+
+    // Category filter (need to join with collectionCategories)
+    // For now, skip category filter if no categories in database yet
+
+    // Combine all conditions
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+    // Get collections with filters
     const result = await db
       .select({
         collection: collections,
@@ -141,18 +175,17 @@ export const getCollectionsListServer = createServerFn({ method: 'GET' })
       .from(collections)
       .leftJoin(users, eq(collections.ownerId, users.id))
       .leftJoin(bids, eq(collections.id, bids.collectionId))
-      .where(searchCondition)
+      .where(whereClause)
       .groupBy(collections.id, users.id)
       .orderBy(desc(collections.createdAt))
       .limit(limit)
       .offset(offset)
 
-    // Get total count with same search filter
-    const countQuery = db.select({ count: count() }).from(collections)
-    if (searchCondition) {
-      countQuery.where(searchCondition)
-    }
-    const countResult = await countQuery
+    // Get total count with same filters
+    const countResult = await db
+      .select({ count: count() })
+      .from(collections)
+      .where(whereClause)
     const totalCount = Number(countResult[0].count)
 
     return {
@@ -167,6 +200,7 @@ export const getCollectionsListServer = createServerFn({ method: 'GET' })
         startingPrice: item.collection.startingPrice,
         currentBid: item.highestBid ?? item.collection.startingPrice,
         bidCount: Number(item.bidCount),
+        stock: item.collection.stock,
         status: item.collection.status,
         endsAt: item.collection.endsAt,
         createdAt: item.collection.createdAt,
@@ -178,11 +212,43 @@ export const getCollectionsListServer = createServerFn({ method: 'GET' })
         totalPages: Math.ceil(totalCount / limit),
       },
       search: search || null,
+      filters: {
+        status: status || 'all',
+        minPrice: minPrice || null,
+        maxPrice: maxPrice || null,
+        category: category || null,
+        ownerId: ownerId || null,
+      },
     }
   })
 
 // Get bids for a specific collection
+const getCollectionBidsSchema = z.object({
+  collectionId: z.string().uuid('Invalid collection ID'),
+})
+
 export const getCollectionBidsServer = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    return []
+  .inputValidator(getCollectionBidsSchema)
+  .handler(async ({ data }) => {
+    const { collectionId } = data
+
+    const result = await db
+      .select({
+        bid: bids,
+        user: users,
+      })
+      .from(bids)
+      .leftJoin(users, eq(bids.userId, users.id))
+      .where(eq(bids.collectionId, collectionId))
+      .orderBy(desc(bids.amount))
+
+    return result.map((item) => ({
+      id: item.bid.id,
+      amount: item.bid.amount,
+      status: item.bid.status,
+      createdAt: item.bid.createdAt,
+      userId: item.bid.userId,
+      bidderName: item.user?.name ?? 'Unknown',
+      bidderAvatar: item.user?.avatarUrl ?? null,
+    }))
   })

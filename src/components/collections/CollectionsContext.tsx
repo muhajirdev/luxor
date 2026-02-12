@@ -42,6 +42,7 @@ export interface Collection {
   startingPrice: number
   currentBid: number
   bidCount: number
+  stock: number
   status: string
   endsAt: Date | null
   createdAt: Date
@@ -57,6 +58,15 @@ export interface PaginationInfo {
 export interface CollectionsData {
   collections: Collection[]
   pagination: PaginationInfo
+  filters?: FilterState
+}
+
+export interface FilterState {
+  status: 'all' | 'active' | 'sold'
+  minPrice: number | null
+  maxPrice: number | null
+  category: string | null
+  ownerId: string | null
 }
 
 interface CollectionsContextValue {
@@ -75,6 +85,13 @@ interface CollectionsContextValue {
 
   // Refresh
   refreshCollections: () => void
+
+  // Filters
+  filters: FilterState
+  setFilters: (filters: Partial<FilterState>) => void
+
+  // Loading state
+  isLoading: boolean
 }
 
 const CollectionsContext = createContext<CollectionsContextValue | null>(null)
@@ -99,17 +116,45 @@ interface CollectionsProviderProps {
   data: CollectionsData
   initialSearch?: string
   onSearch?: (query: string) => void
+  initialFilters?: Partial<FilterState>
+  onFilterChange?: (filters: FilterState) => void
+  onPageChange?: (page: number) => void
+  isLoading?: boolean
 }
 
-export function CollectionsProvider({ children, data, initialSearch = '', onSearch }: CollectionsProviderProps) {
+export function CollectionsProvider({ children, data, initialSearch = '', onSearch, initialFilters = {}, onFilterChange, onPageChange, isLoading = false }: CollectionsProviderProps) {
   const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [currentPage, setCurrentPage] = useState(data.pagination.page)
+
+  // Initialize filters from data or defaults
+  const [filters, setFiltersState] = useState<FilterState>({
+    status: data.filters?.status || initialFilters.status || 'all',
+    minPrice: data.filters?.minPrice || initialFilters.minPrice || null,
+    maxPrice: data.filters?.maxPrice || initialFilters.maxPrice || null,
+    category: data.filters?.category || initialFilters.category || null,
+    ownerId: data.filters?.ownerId || initialFilters.ownerId || null,
+  })
 
   // Sync search query with URL
   const handleSetSearchQuery = useCallback((query: string) => {
     setSearchQuery(query)
     onSearch?.(query)
   }, [onSearch])
+
+  // Update filters and notify parent
+  const setFilters = useCallback((newFilters: Partial<FilterState>) => {
+    setFiltersState(prev => {
+      const updated = { ...prev, ...newFilters }
+      onFilterChange?.(updated)
+      return updated
+    })
+  }, [onFilterChange])
+
+  // Handle page change
+  const goToPage = useCallback((page: number) => {
+    setCurrentPage(page)
+    onPageChange?.(page)
+  }, [onPageChange])
 
   // Memoize the lookup map for O(1) selection by ID
   const collectionMap = useMemo(() => {
@@ -136,6 +181,13 @@ export function CollectionsProvider({ children, data, initialSearch = '', onSear
     setSearchQuery(initialSearch)
   }, [initialSearch])
 
+  // Sync with filter changes from data
+  useEffect(() => {
+    if (data.filters) {
+      setFiltersState(data.filters)
+    }
+  }, [data.filters])
+
   const value = useMemo(() => ({
     collections: data.collections,
     getCollection,
@@ -143,8 +195,11 @@ export function CollectionsProvider({ children, data, initialSearch = '', onSear
     searchQuery,
     setSearchQuery: handleSetSearchQuery,
     filteredCollections,
-    goToPage: setCurrentPage,
+    goToPage,
     refreshCollections,
+    filters,
+    setFilters,
+    isLoading,
   }), [
     data.collections,
     data.pagination,
@@ -156,6 +211,10 @@ export function CollectionsProvider({ children, data, initialSearch = '', onSear
     refreshCollections,
     refreshKey,
     handleSetSearchQuery,
+    filters,
+    setFilters,
+    goToPage,
+    isLoading,
   ])
 
   return (

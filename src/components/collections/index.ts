@@ -1,6 +1,7 @@
 export { CollectionsProvider, useCollections, useCollection } from './CollectionsContext'
-export type { Collection, CollectionsData, PaginationInfo } from './CollectionsContext'
+export type { Collection, CollectionsData, PaginationInfo, FilterState } from './CollectionsContext'
 export { SearchBar } from './SearchBar'
+export { FilterBar } from './FilterBar'
 export { CollectionTable } from './CollectionTable'
 export { CollectionRow } from './CollectionRow'
 export { BidHistoryTable } from './BidHistory'

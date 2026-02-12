@@ -1,18 +1,25 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useCallback } from 'react'
 import { Header } from '@/components/Header'
 import { getCollectionsListServer } from '@/lib/server/collections.server'
+import { getCurrentUser } from '@/lib/server/auth.server'
 import {
   CollectionsProvider,
   SearchBar,
+  FilterBar,
   CollectionTable,
   Pagination,
+  type FilterState,
 } from '@/components/collections'
 
 const searchSchema = z.object({
   q: z.string().optional(),
   page: z.number().optional(),
+  status: z.enum(['all', 'active', 'sold']).optional().default('all'),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
+  mine: z.boolean().optional().default(false),
 })
 
 export const Route = createFileRoute('/collections')({
@@ -22,7 +29,26 @@ export const Route = createFileRoute('/collections')({
   loader: async ({ deps }) => {
     const searchQuery = deps.q || ''
     const page = deps.page || 1
-    return await getCollectionsListServer({ data: { search: searchQuery, page, limit: 20 } })
+    const status = deps.status || 'all'
+    const minPrice = deps.minPrice
+    const maxPrice = deps.maxPrice
+    const mine = deps.mine || false
+
+    // Get current user for "my collections" filter
+    const userResult = await getCurrentUser()
+    const ownerId = mine && userResult.success && userResult.user ? userResult.user.id : undefined
+
+    return await getCollectionsListServer({
+      data: {
+        search: searchQuery,
+        page,
+        limit: 20,
+        status,
+        minPrice,
+        maxPrice,
+        ownerId,
+      },
+    })
   },
 })
 
@@ -30,15 +56,62 @@ function CollectionsPage() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const isLoading = useRouterState({ select: (s) => s.isLoading })
 
   const handleSearch = useCallback((query: string) => {
     navigate({
-      search: (prev) => ({ ...prev, q: query || undefined }),
+      search: (prev) => ({ ...prev, q: query || undefined, page: 1 }),
     })
   }, [navigate])
 
+  const handleFilterChange = useCallback((filters: FilterState) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        status: filters.status !== 'all' ? filters.status : undefined,
+        minPrice: filters.minPrice ?? undefined,
+        maxPrice: filters.maxPrice ?? undefined,
+        page: 1,
+      }),
+    })
+  }, [navigate])
+
+  const handleToggleMine = useCallback((mine: boolean) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        mine: mine || undefined,
+        page: 1,
+      }),
+    })
+  }, [navigate])
+
+  const handlePageChange = useCallback((page: number) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        page: page > 1 ? page : undefined,
+      }),
+    })
+  }, [navigate])
+
+  const initialFilters: Partial<FilterState> = {
+    status: search.status || 'all',
+    minPrice: search.minPrice || null,
+    maxPrice: search.maxPrice || null,
+    ownerId: search.mine ? 'mine' : null,
+  }
+
   return (
-    <CollectionsProvider data={data} initialSearch={search.q || ''} onSearch={handleSearch}>
+    <CollectionsProvider
+      data={data}
+      initialSearch={search.q || ''}
+      onSearch={handleSearch}
+      initialFilters={initialFilters}
+      onFilterChange={handleFilterChange}
+      onPageChange={handlePageChange}
+      isLoading={isLoading}
+    >
       <div className="min-h-screen bg-[#000000] relative">
         <Header />
 
@@ -61,9 +134,10 @@ function CollectionsPage() {
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="mb-8">
+          {/* Search and Filters */}
+          <div className="mb-8 space-y-4">
             <SearchBar />
+            <FilterBar showMine={search.mine || false} onToggleMine={() => handleToggleMine(!search.mine)} />
           </div>
 
           {/* Collections Table */}

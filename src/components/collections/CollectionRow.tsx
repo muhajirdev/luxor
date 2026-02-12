@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp, Clock, BarChart3 } from 'lucide-react'
 import { memo, useCallback } from 'react'
 import { useCollection } from './CollectionsContext'
 import { formatPrice, formatTimeLeft } from '@/lib/utils/formatters'
+import { useAuth } from '@/lib/auth/AuthContext'
 
 interface CollectionRowProps {
   collectionId: string
@@ -9,13 +10,15 @@ interface CollectionRowProps {
   onToggle: (id: string) => void
 }
 
-export const CollectionRow = memo(function CollectionRow({ 
-  collectionId, 
-  isExpanded, 
-  onToggle 
+export const CollectionRow = memo(function CollectionRow({
+  collectionId,
+  isExpanded,
+  onToggle
 }: CollectionRowProps) {
   const collection = useCollection(collectionId)
-  
+  const { user } = useAuth()
+  const isOwner = user?.id === collection?.sellerId
+
   if (!collection) return null
 
   const handleClick = useCallback(() => {
@@ -48,8 +51,15 @@ export const CollectionRow = memo(function CollectionRow({
             />
           </div>
           <div>
-            <div className="font-display text-lg text-[#fafaf9]">
-              {collection.name}
+            <div className="flex items-center gap-2">
+              <div className="font-display text-lg text-[#fafaf9]">
+                {collection.name}
+              </div>
+              {isOwner && (
+                <span className="inline-flex items-center px-2 py-0.5 text-[10px] bg-[#b87333]/20 text-[#b87333] border border-[#b87333]/30 rounded">
+                  Yours
+                </span>
+              )}
             </div>
             <div className="lot-number-sm">
               LOT {collection.lot}

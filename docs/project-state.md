@@ -7,7 +7,7 @@
 
 ## Overview
 
-**Status:** MVP 80% Complete  
+**Status:** MVP 85% Complete  
 **Challenge:** LuxorLabs Frontend Assessment  
 **Theme:** Premium bidding marketplace with editorial dark aesthetic
 
@@ -38,6 +38,8 @@
 - [x] Full collections list with pagination
 - [x] Expandable rows showing nested bid history
 - [x] **Search bar (FULLY IMPLEMENTED)** - Server-side search with debounce, URL sync
+- [x] **Advanced filters (FULLY IMPLEMENTED)** - Status (All/Active/Sold), Price range, Owner filter
+- [x] "Yours" badge indicator for owned collections
 - [x] Lazy loading images for performance
 - [x] Responsive table design
 
@@ -48,20 +50,30 @@
 - [x] Auth-aware UI (shows login prompt for guests)
 - [x] Real-time bid updates after placement
 - [x] Activity logging for audit trail
+- [x] **Dynamic bid history** - Fetches and displays actual bids from database (not hardcoded)
+- [x] **Stock-based bidding logic** - Handles collections with multiple items
+
+### Bid Management (Owner Features)
+- [x] **Accept bid functionality** - Owners can accept bids on their collections
+- [x] **Auto-reject pending bids** - When stock reaches 0, all other bids are auto-rejected
+- [x] **Owner-only controls** - Accept button only visible to collection owner
+- [x] **Real-time bid status updates** - Shows Accepted/Rejected/Pending statuses
+- [x] **Sold collection handling** - Bidding closes when collection is sold
 
 ### UI/UX
 - [x] Editorial design system (fonts, colors, spacing)
 - [x] Smooth animations (expand/collapse)
 - [x] Loading states and error handling
 - [x] Mobile responsive
+- [x] **Polished filter bar** - Unified horizontal layout with pill-style filters
 
 ---
 
 ## Remaining (Critical for Challenge)
 
 ### Bid Management
-- [ ] Accept bid functionality (for collection owners)
-- [ ] Auto-reject other bids when one is accepted
+- [x] Accept bid functionality (for collection owners) ✅ DONE
+- [x] Auto-reject other bids when one is accepted ✅ DONE (when stock=0)
 - [ ] Edit own bid (before acceptance)
 - [ ] Cancel own bid (before acceptance)
 
@@ -72,8 +84,9 @@
 - [ ] Upload images (currently using Unsplash URLs)
 
 ### Owner Controls
-- [ ] Accept/reject bid buttons (visible only to owner)
+- [x] Accept/reject bid buttons (visible only to owner) ✅ DONE
 - [ ] Collection status management
+- [x] "Yours" badge indicator ✅ DONE
 
 ### Edge Cases
 - [ ] Handle expired collections
@@ -134,6 +147,7 @@ src/
 │   │   ├── CollectionRow.tsx
 │   │   ├── CollectionTable.tsx
 │   │   ├── CollectionsContext.tsx
+│   │   ├── FilterBar.tsx        # Status, price, owner filters
 │   │   ├── Pagination.tsx
 │   │   └── SearchBar.tsx
 │   └── Header.tsx
@@ -168,26 +182,27 @@ src/
 
 ## Next Priority
 
-### 1. Accept Bid (HIGH)
-- Server function to accept bid
-- Auto-reject other bids logic
-- Update collection status to 'sold'
-- UI: Accept button for owners only
-
-### 2. Create Collection (HIGH)
+### 1. Create Collection (HIGH)
 - Form with TanStack Form + Zod
 - Image upload (or URL input for now)
 - Set starting price
 - Wire to server function
 
-### 3. Edit/Cancel Bid (MEDIUM)
+### 2. Edit/Cancel Bid (MEDIUM)
 - Edit own bid (if not accepted)
 - Cancel own bid
 - Server validation
 
-### 4. Owner Controls (MEDIUM)
-- Show accept/reject only to owner
-- Edit/delete collection buttons
+### 3. Owner Controls (MEDIUM)
+- Edit collection button
+- Delete collection button
+
+### 4. Completed ✅
+- ✅ Accept bid functionality with stock logic
+- ✅ Auto-reject pending bids when stock=0
+- ✅ Owner-only accept buttons
+- ✅ "Yours" badge indicator
+- ✅ Advanced filter bar (status, price, my collections)
 
 ---
 
@@ -214,13 +229,19 @@ src/
 - [ ] Register new account
 - [ ] Login with existing account
 - [ ] Place bid on collection
-- [ ] View bid history
-- [ ] Accept bid as owner
+- [ ] View bid history (now dynamic from DB)
+- [x] Accept bid as owner ✅ Implemented
+- [x] View "Yours" badge on owned collections ✅ Implemented
+- [x] Filter by status (All/Active/Sold) ✅ Implemented
+- [x] Filter by price range ✅ Implemented
+- [x] Filter "My Collections" only ✅ Implemented
 - [ ] Create new collection
 - [ ] Edit collection
 - [ ] Delete collection
+- [ ] Edit own bid
+- [ ] Cancel own bid
 - [ ] Bid validation (min amount, own collection)
 
 ---
 
-*Last Updated: February 12, 2026 - Post bidding implementation*
+*Last Updated: February 12, 2026 - Post accept-bid + filter implementation*
