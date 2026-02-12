@@ -2,18 +2,37 @@
 
 A premium full-stack bidding marketplace where serious collectors bid with confidence. Built with TanStack Start, PostgreSQL, and Tailwind CSS.
 
+## Quick Start
+
+```bash
+# Install dependencies
+pnpm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your DATABASE_URL
+
+# Set up database
+pnpm drizzle-kit generate
+pnpm drizzle-kit migrate
+pnpm tsx src/lib/db/seed.ts
+
+# Start dev server
+pnpm dev
+```
+
+See [Getting Started Guide](./docs/getting-started.md) for detailed setup instructions.
+
 ## Documentation
 
-All project decisions, standards, and context are documented:
-
-- **[Project State](./docs/project-state.md)** - Current progress, roadmap, and architecture decisions
-- **[Brand Voice](./docs/brand-voice.md)** - Verbal identity, tone, and messaging guidelines
-- **[Design Guidelines](./docs/design-guidelines.md)** - Visual design standards (AI-optimized for quick MVP)
-- **[Product Marketing Context](./docs/product-marketing-context.md)** - Positioning, target audience, and value proposition
-- **[User Flows](./docs/user-flows.md)** - User journey documentation and interaction flows
+- **[Getting Started](./docs/getting-started.md)** - Installation and setup
+- **[Architecture Decisions](./docs/architecture-decisions.md)** - Why TanStack Start, PostgreSQL, and key design choices
+- **[Development Tools](./docs/development-tools.md)** - React Scan and debugging
+- **[Deployment](./docs/deployment.md)** - Deploy to Cloudflare Workers
 - **[API Documentation](./docs/api.md)** - API endpoint reference
-- **[Analytics Tracking](./docs/analytics-tracking.md)** - Type-safe analytics implementation and tracking plan
-- **[TODO List](./TODO.md)** - Development tasks and priorities
+- **[Architecture](./docs/architecture.md)** - System architecture and patterns
+- **[Project State](./docs/project-state.md)** - Current progress and roadmap
+- **[Contributing](./docs/contributing.md)** - Development guidelines
 
 ## Features
 
@@ -24,29 +43,6 @@ All project decisions, standards, and context are documented:
 - **Role-Based Controls** - Different permissions for collection owners vs bidders
 - **Dark Premium Design** - Blur.io-inspired aesthetic with amber accents
 - **Type-Safe Analytics** - 100% TypeScript-autocomplete for event tracking with auto-generated docs
-
-## Key Decisions
-
-### Component Architecture Pattern
-We use **State Colocation + ID-based Selection + Composition** for complex UI components:
-
-- **Flexibility**: Composition lets you rearrange, style, or swap pieces independently  
-- **No Prop Drilling**: State colocation + context gets data where it's needed
-- **Performance**: Primitive props work with default `React.memo`—no custom comparison needed
-
-See `docs/architecture.md` and ["Composition Is All You Need" by Fernando Rojo](https://www.youtube.com/watch?v=4KvbVq3Eg5w).
-
-### Design System (MVP)
-Using [Design Guidelines](./docs/design-guidelines.md) optimized for rapid AI-assisted development. A full design system will be built post-MVP.
-
-### Type-Safe Architecture
-**No REST APIs.** Using TanStack Start server functions for 100% end-to-end type safety from database to UI.
-
-### Type-Safe Event Tracking
-Analytics events are defined as a TypeScript constant with type-inferred properties. TypeScript provides autocomplete for event names and validates property types at compile time. Documentation is auto-generated from the code, ensuring it never goes out of sync.
-
-### Database
-PostgreSQL (Neon) with explicit query builders via Drizzle ORM for type-safe data access.
 
 ## Tech Stack
 
@@ -60,215 +56,32 @@ PostgreSQL (Neon) with explicit query builders via Drizzle ORM for type-safe dat
 - **Testing**: Vitest + React Testing Library
 - **Deployment**: Cloudflare Workers
 
-## Development Tools
-
-### React Scan (Performance Debugging)
-
-[React Scan](https://github.com/aidenybai/react-scan) is included in the project for performance debugging. It visualizes component re-renders to help identify performance issues.
-
-**Features:**
-- Highlights components that re-render with color-coded borders
-- Shows render frequency and timing
-- Helps catch unnecessary re-renders
-
-**How to enable:**
-
-1. Open `src/routes/__root.tsx`
-2. Uncomment the React Scan script tag in the `<head>` section:
-
-```tsx
-<script
-  crossOrigin="anonymous"
-  src="//unpkg.com/react-scan/dist/auto.global.js"
-/>
-```
-
-3. Refresh the page and watch for colored borders around re-rendering components
-
-**Note:** Only use React Scan in development. Never enable it in production.
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- pnpm package manager
-- PostgreSQL database (Neon recommended)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd bidding-app
-```
-
-2. Install dependencies:
-```bash
-pnpm install
-```
-
-3. Set up environment variables:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-```env
-# Database
-DATABASE_URL="postgresql://username:password@hostname/dbname?sslmode=require"
-
-# Auth
-SESSION_SECRET="your-super-secret-session-key-min-32-chars"
-```
-
-4. Set up the database:
-```bash
-# Generate migrations
-pnpm drizzle-kit generate
-
-# Run migrations (manually in production)
-pnpm drizzle-kit migrate
-
-# Seed with sample data
-pnpm tsx src/lib/db/seed.ts
-```
-
-5. Start the development server:
-```bash
-pnpm dev
-```
-
-The app will be available at `http://localhost:3000`
-
-### Test Accounts
-
-After seeding the database, you can log in with any of these test accounts:
-
-**All accounts use password:** `password123`
-
-| Email | Name |
-|-------|------|
-| `admin@luxorbids.com` | Admin User |
-| `sarah.mitchell@email.com` | Sarah Mitchell |
-| `james.chen@email.com` | James Chen |
-| `maria.rodriguez@email.com` | Maria Rodriguez |
-| `robert.williams@email.com` | Robert Williams |
-| `elizabeth.taylor@email.com` | Elizabeth Taylor |
-| `david.kim@email.com` | David Kim |
-| `emily.johnson@email.com` | Emily Johnson |
-| `michael.brown@email.com` | Michael Brown |
-| `jennifer.davis@email.com` | Jennifer Davis |
-
-The seed data includes 15 users with 120+ collections and realistic bid history.
-
 ## Available Scripts
 
 ```bash
-# Development
-pnpm dev              # Start dev server on port 3000
-pnpm build            # Production build
-pnpm serve            # Preview production build locally
-
-# Testing
-pnpm test             # Run all tests
-pnpm test -- --grep "pattern"  # Run specific tests
-
-# Database
-pnpm drizzle-kit generate    # Generate migration files
-pnpm drizzle-kit migrate     # Run migrations (manual only)
-pnpm tsx src/lib/db/seed.ts  # Seed database with sample data
-
-# Deployment
-pnpm deploy           # Build and deploy to Cloudflare Workers
-pnpm preview          # Build and preview locally
-
-# Project Management
-pnpm improvements     # List all future improvements ranked by priority
-
-# Analytics
-pnpm generate:tracking-plan  # Generate tracking-plan.md from tracker.ts
+pnpm dev                   # Start dev server on port 3000
+pnpm build                 # Production build
+pnpm test                  # Run all tests
+pnpm deploy                # Deploy to Cloudflare Workers
+pnpm improvements          # List future improvements
+pnpm generate:tracking-plan # Generate analytics tracking documentation
 ```
 
-## API Documentation
+See [package.json](./package.json) for all scripts.
 
-See [docs/api.md](./docs/api.md) for endpoint documentation.
+## Database
 
-## Database Schema
+- **Schema**: [src/lib/db/schema.ts](./src/lib/db/schema.ts)
+- **Migrations**: [drizzle/](./drizzle/)
 
-See [src/lib/db/schema.ts](./src/lib/db/schema.ts) for full schema definitions.
+See [Future Improvements](./docs/future-improvements/) for planned enhancements.
 
-## Architecture Decisions
+## Production Readiness
 
-### Why TanStack Start?
-- Workspace already configured for TanStack Start
-- RPC-style server functions eliminate REST boilerplate
-- File-based routing is intuitive
-- Demonstrates modern React framework knowledge
-
-### Why PostgreSQL (Neon)?
-- Production-grade database with serverless scaling
-- Better concurrent write handling than SQLite
-- Fits well with Cloudflare Workers deployment
-
-### Why Custom Authentication?
-Simple for MVP — we can migrate to managed auth (Clerk/Auth0) later if needed.
-
-### Why TanStack Form?
-- Native TanStack ecosystem integration
-- Fine-grained reactivity for better performance
-- Type-safe by default
-- Headless design works with shadcn/ui
-
-## Future Improvements
-
-See [docs/future-improvements/](./docs/future-improvements/) for planned enhancements.
-
-## Testing
-
-Run the test suite:
-
-```bash
-pnpm test
-```
-
-Tests are located alongside components using the `.test.tsx` pattern.
-
-## Deployment
-
-### Cloudflare Workers
-
-1. Configure `wrangler.jsonc` with your account details
-2. Run the deploy command:
-```bash
-pnpm deploy
-```
-
-### Environment Variables for Production
-
-Ensure these are set in your deployment environment:
-
-- `DATABASE_URL` - PostgreSQL connection string
-- `SESSION_SECRET` - Secret key for session encryption
-
-## Contributing
-
-1. Follow the existing code style (no semicolons, single quotes, trailing commas)
-2. Use `@/` imports for internal modules
-3. Use explicit Drizzle query builders (not `db.query`)
-4. Add tests for new features
-5. Run `pnpm test` and `pnpm build` before committing
+- **[Monitoring & Observability](./docs/production/monitoring.md)** - How to monitor the application
+- **[Scalability & Performance](./docs/production/scalability.md)** - Scaling strategy
+- **[Trade-offs](./docs/production/tradeoffs.md)** - Decisions made and future improvements
 
 ## License
 
 [MIT License](./LICENSE)
-
----
-
-## Production Readiness
-
-Answers to production readiness questions:
-
-- **[Monitoring & Observability](./docs/production/monitoring.md)** - How to monitor the application to ensure it is running smoothly
-- **[Scalability & Performance](./docs/production/scalability.md)** - How to address scalability and performance
-- **[Trade-offs & Future Improvements](./docs/production/tradeoffs.md)** - Things done differently with more time and resources
