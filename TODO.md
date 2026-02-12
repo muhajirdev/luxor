@@ -94,7 +94,7 @@
 - [ ] Table with columns: Image | Name | Price | Bids | Status | Actions
 - [ ] Expandable rows to show bids table
 - [ ] Nested bids table: Bidder | Amount | Status | Time | Actions
-- [ ] Search/filter bar
+- [x] Search/filter bar - **DONE**: Server-side search with debounce
 - [ ] Pagination (20 items per page)
 - [ ] Empty state for no collections
 

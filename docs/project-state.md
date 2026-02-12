@@ -37,7 +37,7 @@
 ### Collections Page
 - [x] Full collections list with pagination
 - [x] Expandable rows showing nested bid history
-- [x] Search bar (UI ready)
+- [x] **Search bar (FULLY IMPLEMENTED)** - Server-side search with debounce, URL sync
 - [x] Lazy loading images for performance
 - [x] Responsive table design
 
@@ -194,9 +194,8 @@ src/
 ## Known Issues
 
 1. **Images**: Using external Unsplash URLs (documented as future improvement)
-2. **Search**: UI present but not wired to backend
-3. **Pagination**: Shows page info but doesn't change pages yet
-4. **Real-time**: No WebSocket (page refresh needed to see new bids)
+2. **Pagination**: Shows page info but doesn't change pages yet
+3. **Real-time**: No WebSocket (page refresh needed to see new bids)
 
 ---
 

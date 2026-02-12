@@ -8,8 +8,8 @@ interface HeaderSearchProps {
 
 /**
  * HeaderSearch - Quick search that navigates to collections page
- * 
- * User types and presses Enter → navigates to /collections?q=query
+ *
+ * User types and presses Enter (or clicks 🔍 button) → navigates to /collections?q=query
  * On /collections page, the main SearchBar takes over
  */
 export function HeaderSearch({ className = '' }: HeaderSearchProps) {
@@ -42,8 +42,16 @@ export function HeaderSearch({ className = '' }: HeaderSearchProps) {
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Search catalog..."
-        className="w-full border border-[#1a1a1a] bg-[#0a0a0a] py-3 pl-12 pr-4 font-editorial text-sm text-[#fafaf9] placeholder-[#4a4a4a] transition-all duration-300 focus:border-[#b87333] focus:outline-none"
+        className="w-full border border-[#1a1a1a] bg-[#0a0a0a] py-3 pl-12 pr-12 font-editorial text-sm text-[#fafaf9] placeholder-[#4a4a4a] transition-all duration-300 focus:border-[#b87333] focus:outline-none"
       />
+      <button
+        onClick={handleSubmit}
+        className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-[#4a4a4a] transition-colors hover:text-[#b87333]"
+        type="button"
+        aria-label="Search"
+      >
+        <Search className="h-4 w-4" />
+      </button>
     </div>
   )
 }
