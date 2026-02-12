@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Header } from '@/components/Header'
 import { motion } from 'framer-motion'
 import { ArrowRight, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
+import { signUpUser } from '@/lib/server/auth.server'
 
 export const Route = createFileRoute('/register')({
   component: RegisterPage,
@@ -29,7 +30,10 @@ const staggerContainer = {
 }
 
 function RegisterPage() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,10 +41,24 @@ function RegisterPage() {
     agreeTerms: false,
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement registration logic
-    console.log('Registration attempt:', formData)
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const result = await signUpUser({ data: formData })
+
+      if (result.success) {
+        navigate({ to: '/app' })
+      } else {
+        setError(result.error || 'Failed to create account')
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -139,6 +157,13 @@ function RegisterPage() {
                       Get Started
                     </h2>
                   </div>
+
+                  {/* Error Message */}
+                  {error && (
+                    <div className="mb-6 p-4 border border-red-500/30 bg-red-500/10">
+                      <p className="body-sm text-red-400">{error}</p>
+                    </div>
+                  )}
 
                   {/* Registration Form */}
                   <form onSubmit={handleSubmit} className="space-y-6">
@@ -251,10 +276,20 @@ function RegisterPage() {
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      className="btn-primary w-full justify-center group"
+                      disabled={isLoading}
+                      className="btn-primary w-full justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Create Account
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                      {isLoading ? (
+                        <>
+                          Creating Account...
+                          <span className="ml-2 inline-block animate-spin rounded-full h-4 w-4 border-2 border-[#fafaf9] border-t-transparent" />
+                        </>
+                      ) : (
+                        <>
+                          Create Account
+                          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </>
+                      )}
                     </button>
                   </form>
 

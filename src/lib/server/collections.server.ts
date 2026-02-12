@@ -20,7 +20,7 @@ export const getTrendingCollectionsServer = createServerFn({ method: 'GET' })
       .orderBy(desc(count(bids.id)))
       .limit(5)
 
-    return result.map((item, index) => ({
+    return result.map((item) => ({
       id: item.collection.id,
       lot: String(item.collection.id).slice(0, 4),
       name: item.collection.name,
@@ -51,7 +51,7 @@ export const getFeaturedCollectionsServer = createServerFn({ method: 'GET' })
       .orderBy(desc(collections.createdAt))
       .limit(4)
 
-    return result.map((item, index) => ({
+    return result.map((item) => ({
       id: item.collection.id,
       lot: String(item.collection.id).slice(0, 4),
       name: item.collection.name,
@@ -59,7 +59,7 @@ export const getFeaturedCollectionsServer = createServerFn({ method: 'GET' })
       image: item.collection.imageUrl ?? 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&h=900&fit=crop',
       itemCount: Number(item.bidCount) + 1,
       totalValue: item.collection.startingPrice,
-      featured: index === 0,
+      featured: false,
     }))
   })
 
@@ -107,3 +107,60 @@ function formatPrice(cents: number): string {
   }
   return `$${dollars.toFixed(2)}`
 }
+
+// Collections list with pagination
+export const getCollectionsListServer = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    const page = 1
+    const limit = 20
+    const offset = (page - 1) * limit
+
+    const result = await db
+      .select({
+        collection: collections,
+        owner: users,
+        bidCount: count(bids.id),
+        highestBid: max(bids.amount),
+      })
+      .from(collections)
+      .leftJoin(users, eq(collections.ownerId, users.id))
+      .leftJoin(bids, eq(collections.id, bids.collectionId))
+      .groupBy(collections.id, users.id)
+      .orderBy(desc(collections.createdAt))
+      .limit(limit)
+      .offset(offset)
+
+    // Get total count for pagination
+    const countResult = await db.select({ count: count() }).from(collections)
+    const totalCount = Number(countResult[0].count)
+
+    return {
+      collections: result.map((item) => ({
+        id: item.collection.id,
+        lot: String(item.collection.id).slice(0, 8),
+        name: item.collection.name,
+        description: item.collection.description,
+        image: item.collection.imageUrl ?? 'https://images.unsplash.com/photo-1550985616-10810253b84d?w=800&h=600&fit=crop',
+        seller: item.owner?.name ?? 'Unknown',
+        sellerId: item.collection.ownerId,
+        startingPrice: item.collection.startingPrice,
+        currentBid: item.highestBid ?? item.collection.startingPrice,
+        bidCount: Number(item.bidCount),
+        status: item.collection.status,
+        endsAt: item.collection.endsAt,
+        createdAt: item.collection.createdAt,
+      })),
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    }
+  })
+
+// Get bids for a specific collection
+export const getCollectionBidsServer = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    return []
+  })

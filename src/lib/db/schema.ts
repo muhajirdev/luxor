@@ -15,13 +15,20 @@ export const users = pgTable('users', {
 });
 
 // Sessions table - server-side session storage
-export const sessions = pgTable('sessions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  token: varchar('token', { length: 255 }).notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+export const sessions = pgTable(
+  'sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    token: varchar('token', { length: 255 }).notNull().unique(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdx: index('sessions_user_idx').on(table.userId),
+    expiresIdx: index('sessions_expires_idx').on(table.expiresAt),
+  })
+);
 
 // Categories table - for filtering collections
 export const categories = pgTable('categories', {
@@ -72,15 +79,24 @@ export const collectionCategories = pgTable(
 );
 
 // Bids table - offers on collections
-export const bids = pgTable('bids', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  collectionId: uuid('collection_id').notNull().references(() => collections.id, { onDelete: 'cascade' }),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  amount: bigint('amount', { mode: 'number' }).notNull(), // in cents
-  status: varchar('status', { length: 20 }).notNull().default('pending'), // 'pending', 'accepted', 'rejected', 'cancelled'
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+export const bids = pgTable(
+  'bids',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    collectionId: uuid('collection_id').notNull().references(() => collections.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    amount: bigint('amount', { mode: 'number' }).notNull(), // in cents
+    status: varchar('status', { length: 20 }).notNull().default('pending'), // 'pending', 'accepted', 'rejected', 'cancelled'
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    collectionIdx: index('bids_collection_idx').on(table.collectionId),
+    userIdx: index('bids_user_idx').on(table.userId),
+    createdIdx: index('bids_created_idx').on(table.createdAt),
+    statusIdx: index('bids_status_idx').on(table.status),
+  })
+);
 
 // Activity logs table - audit trail and history
 export const activityLogs = pgTable('activity_logs', {

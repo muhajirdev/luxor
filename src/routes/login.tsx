@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Header } from '@/components/Header'
 import { motion } from 'framer-motion'
 import { ArrowRight, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
+import { signInUser } from '@/lib/server/auth.server'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -29,16 +30,33 @@ const staggerContainer = {
 }
 
 function LoginPage() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement login logic
-    console.log('Login attempt:', formData)
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const result = await signInUser({ data: formData })
+
+      if (result.success) {
+        navigate({ to: '/app' })
+      } else {
+        setError(result.error || 'Failed to sign in')
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -121,6 +139,13 @@ function LoginPage() {
                     </h2>
                   </div>
 
+                  {/* Error Message */}
+                  {error && (
+                    <div className="mb-6 p-4 border border-red-500/30 bg-red-500/10">
+                      <p className="body-sm text-red-400">{error}</p>
+                    </div>
+                  )}
+
                   {/* Login Form */}
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Email Field */}
@@ -185,21 +210,32 @@ function LoginPage() {
                           Remember me
                         </span>
                       </label>
-                    <a
-                      href="#"
-                      className="label-sm text-[#b87333] hover:text-[#fafaf9] transition-colors"
+                    <button
+                      type="button"
+                      onClick={() => alert('Forgot password feature is not implemented yet. Please contact admin for assistance.')}
+                      className="label-sm text-[#b87333] hover:text-[#fafaf9] transition-colors bg-transparent border-none cursor-pointer p-0"
                     >
                       Forgot password?
-                    </a>
+                    </button>
                     </div>
 
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      className="btn-primary w-full justify-center group"
+                      disabled={isLoading}
+                      className="btn-primary w-full justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Sign In
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                      {isLoading ? (
+                        <>
+                          Signing In...
+                          <span className="ml-2 inline-block animate-spin rounded-full h-4 w-4 border-2 border-[#fafaf9] border-t-transparent" />
+                        </>
+                      ) : (
+                        <>
+                          Sign In
+                          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </>
+                      )}
                     </button>
                   </form>
 

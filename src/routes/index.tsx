@@ -321,6 +321,8 @@ function LandingPage() {
                     <img
                       src={featuredCollections[0].image}
                       alt={featuredCollections[0].name}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/40 to-transparent" />
@@ -372,6 +374,8 @@ function LandingPage() {
                       <img
                         src={collection.image}
                         alt={collection.name}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                       />
 
@@ -497,10 +501,12 @@ function LandingPage() {
                         </td>
                         <td>
                           <div className="flex items-center gap-4">
-                            <div className="h-14 w-14 overflow-hidden border border-[#1a1a1a]">
+                            <div className="h-14 w-14 overflow-hidden border border-[#1a1a1a] bg-[#1a1a1a]">
                               <img
                                 src={collection.image}
                                 alt={collection.name}
+                                loading="lazy"
+                                decoding="async"
                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                               />
                             </div>

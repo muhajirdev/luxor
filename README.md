@@ -11,6 +11,7 @@ All project decisions, standards, and context are documented:
 - **[Design Guidelines](./docs/design-guidelines.md)** - Visual design standards (AI-optimized for quick MVP)
 - **[Product Marketing Context](./docs/product-marketing-context.md)** - Positioning, target audience, and value proposition
 - **[User Flows](./docs/user-flows.md)** - User journey documentation and interaction flows
+- **[API Documentation](./docs/api.md)** - API endpoint reference
 - **[TODO List](./TODO.md)** - Development tasks and priorities
 
 ## Features
@@ -119,98 +120,18 @@ pnpm tsx src/lib/db/seed.ts  # Seed database with sample data
 # Deployment
 pnpm deploy           # Build and deploy to Cloudflare Workers
 pnpm preview          # Build and preview locally
+
+# Project Management
+pnpm improvements     # List all future improvements ranked by priority
 ```
 
-## API Endpoints
+## API Documentation
 
-### Health Check
-
-**Endpoint:** `GET /api/health`
-
-Returns the service health status, useful for monitoring and load balancers.
-
-**Response (200 - Healthy):**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2026-02-12T12:00:00.000Z",
-  "version": "1.0.0",
-  "checks": {
-    "database": {
-      "status": "healthy",
-      "responseTime": 12
-    },
-    "environment": {
-      "status": "healthy",
-      "region": "SJC",
-      "cfRay": "8f9a2b..."
-    }
-  }
-}
-```
-
-**Response (503 - Unhealthy):**
-```json
-{
-  "status": "unhealthy",
-  "timestamp": "2026-02-12T12:00:00.000Z",
-  "version": "1.0.0",
-  "checks": {
-    "database": {
-      "status": "unhealthy",
-      "responseTime": 5000,
-      "message": "Connection timeout"
-    },
-    "environment": {
-      "status": "healthy",
-      "region": "SJC",
-      "cfRay": "8f9a2b..."
-    }
-  }
-}
-```
-
-**Check Details:**
-- **Database**: Validates PostgreSQL connectivity with response time
-- **Environment**: Shows Cloudflare datacenter region and request ID for debugging
-
-## Project Structure
-
-```
-bidding-app/
-├── src/
-│   ├── routes/              # TanStack routes (file-based)
-│   │   ├── __root.tsx      # Root layout
-│   │   ├── index.tsx       # Landing page
-│   │   ├── login.tsx       # Login page
-│   │   ├── register.tsx    # Registration page
-│   │   ├── collections.tsx # Collections list page
-│   │   └── ...
-│   ├── components/          # Reusable components
-│   │   ├── ui/             # shadcn/ui components
-│   │   └── Header.tsx      # Navigation header
-│   ├── lib/                # Utilities
-│   │   ├── db/            # Database schema & client
-│   │   ├── auth/          # Authentication utilities
-│   │   └── utils.ts       # Helper functions
-│   ├── hooks/             # Custom React hooks
-│   └── styles/            # Global styles
-├── drizzle/               # Database migrations
-├── docs/                  # Project documentation
-├── public/                # Static assets
-└── package.json
-```
+See [docs/api.md](./docs/api.md) for endpoint documentation.
 
 ## Database Schema
 
-### Users
-- `id`, `email`, `password_hash`, `name`, `created_at`
-
-### Collections
-- `id`, `name`, `description`, `stocks`, `price`, `owner_id`, `status`, `created_at`
-
-### Bids
-- `id`, `collection_id`, `price`, `user_id`, `status` (pending/accepted/rejected), `created_at`
+See [src/lib/db/schema.ts](./src/lib/db/schema.ts) for full schema definitions.
 
 ## Architecture Decisions
 
@@ -226,9 +147,7 @@ bidding-app/
 - Fits well with Cloudflare Workers deployment
 
 ### Why Custom Authentication?
-- Shows understanding of auth fundamentals
-- No external service dependencies
-- Simpler for challenge context
+Simple for MVP — we can migrate to managed auth (Clerk/Auth0) later if needed.
 
 ### Why TanStack Form?
 - Native TanStack ecosystem integration
@@ -238,19 +157,7 @@ bidding-app/
 
 ## Future Improvements
 
-Key improvements planned (see [full list](./docs/future-improvements.md)):
-
-- **Cloudflare Hyperdrive** - Connect database via Hyperdrive to reduce latency and enable intelligent caching for faster queries
-- **Full Design System** - Build comprehensive design system beyond the current AI-optimized guidelines
-- **Advanced Analytics** - Add bidding analytics and market insights for collectors
-- **Real-time Updates** - Implement WebSocket or SSE for real-time bid notifications
-- **Feature-Based Architecture** - Move from layer-centric (`/components`, `/hooks`) to feature-centric structure (`/features/collections`, `/features/bidding`) for better code colocation and maintainability
-- **Monorepo** - Consider migrating to monorepo structure (Turborepo/Nx) when codebase scales significantly
-
-### Current Tracking
-
-- **PostHog** - User analytics, funnel tracking, and feature usage insights
-- **Sentry** - Error tracking and performance monitoring
+See [docs/future-improvements/](./docs/future-improvements/) for planned enhancements.
 
 ## Testing
 

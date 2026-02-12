@@ -12,7 +12,8 @@
 		"cf-typegen": "wrangler types",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"db:seed": "tsx src/lib/db/seed.ts"
+		"db:seed": "tsx src/lib/db/seed.ts",
+		"improvements": "node scripts/list-improvements.js"
 	},
 	"dependencies": {
 		"@cloudflare/vite-plugin": "^1.13.8",
@@ -31,7 +32,8 @@
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"tailwindcss": "^4.0.6",
-		"vite-tsconfig-paths": "^5.1.4"
+		"vite-tsconfig-paths": "^5.1.4",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@tanstack/devtools-vite": "^0.3.11",
