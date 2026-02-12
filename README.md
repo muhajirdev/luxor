@@ -2,6 +2,8 @@
 
 A premium full-stack bidding marketplace where serious collectors bid with confidence. Built with TanStack Start, PostgreSQL, and Tailwind CSS.
 
+Demo: https://bidding-app.qalam.workers.dev/
+
 ## Quick Start
 
 ```bash
