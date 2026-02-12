@@ -1,16 +1,21 @@
-import { ArrowRight } from 'lucide-react'
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import { useCollection } from './CollectionsContext'
 import { formatPrice } from '@/lib/utils/formatters'
+import { BidForm } from './BidForm'
 
 interface BidHistoryTableProps {
   collectionId: string
+  onBidPlaced: () => void
 }
 
-export const BidHistoryTable = memo(function BidHistoryTable({ collectionId }: BidHistoryTableProps) {
+export const BidHistoryTable = memo(function BidHistoryTable({ collectionId, onBidPlaced }: BidHistoryTableProps) {
   const collection = useCollection(collectionId)
-  
+
   if (!collection) return null
+
+  const handleBidPlaced = useCallback(() => {
+    onBidPlaced()
+  }, [onBidPlaced])
 
   return (
     <div className="p-6 animate-expandContentIn">
@@ -20,7 +25,7 @@ export const BidHistoryTable = memo(function BidHistoryTable({ collectionId }: B
           <h4 className="label-sm text-[#4a4a4a]">Bid History</h4>
           <span className="label-sm text-[#b87333]">{collection.bidCount} bids</span>
         </div>
-        
+
         <div className="border border-[#1a1a1a]">
           <table className="w-full">
             <thead className="bg-[#000000]">
@@ -72,29 +77,16 @@ export const BidHistoryTable = memo(function BidHistoryTable({ collectionId }: B
           </table>
         </div>
       </div>
-      
-      {/* Quick Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-[#1a1a1a]">
-        <div className="flex items-center gap-4">
-          <div>
-            <span className="label-sm text-[#4a4a4a] block">Next minimum bid</span>
-            <span className="font-display text-xl text-[#fafaf9] tabular">
-              {formatPrice(collection.currentBid + 100)}
-            </span>
-          </div>
-          <div className="h-8 w-px bg-[#1a1a1a]" />
-          <div>
-            <span className="label-sm text-[#4a4a4a] block">Your max bid</span>
-            <span className="font-mono text-sm text-[#8a8a8a] tabular">--</span>
-          </div>
-        </div>
-        
-        <button className="btn-primary group">
-          Place Bid
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </button>
+
+      {/* Bid Form */}
+      <div className="pt-4 border-t border-[#1a1a1a]">
+        <BidForm
+          collectionId={collectionId}
+          currentBid={collection.currentBid}
+          onBidPlaced={handleBidPlaced}
+        />
       </div>
     </div>
   )
 })
-// No custom comparison needed - only primitive prop (string)
+// No custom comparison needed - only primitive props

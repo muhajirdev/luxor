@@ -29,7 +29,7 @@
  * 
  * @see docs/architecture.md for full pattern documentation
  */
-import { createContext, useContext, useState, useMemo } from 'react'
+import { createContext, useContext, useState, useMemo, useCallback } from 'react'
 
 export interface Collection {
   id: string
@@ -64,14 +64,17 @@ interface CollectionsContextValue {
   collections: Collection[]
   getCollection: (id: string) => Collection | undefined
   pagination: PaginationInfo
-  
+
   // Search - global: SearchBar writes, CollectionTable reads
   searchQuery: string
   setSearchQuery: (query: string) => void
   filteredCollections: Collection[]
-  
+
   // Pagination
   goToPage: (page: number) => void
+
+  // Refresh
+  refreshCollections: () => void
 }
 
 const CollectionsContext = createContext<CollectionsContextValue | null>(null)
@@ -121,6 +124,12 @@ export function CollectionsProvider({ children, data }: CollectionsProviderProps
     )
   }, [data.collections, searchQuery])
 
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const refreshCollections = useCallback(() => {
+    setRefreshKey(prev => prev + 1)
+  }, [])
+
   const value = useMemo(() => ({
     collections: data.collections,
     getCollection,
@@ -129,6 +138,7 @@ export function CollectionsProvider({ children, data }: CollectionsProviderProps
     setSearchQuery,
     filteredCollections,
     goToPage: setCurrentPage,
+    refreshCollections,
   }), [
     data.collections,
     data.pagination,
@@ -137,6 +147,8 @@ export function CollectionsProvider({ children, data }: CollectionsProviderProps
     currentPage,
     searchQuery,
     filteredCollections,
+    refreshCollections,
+    refreshKey,
   ])
 
   return (

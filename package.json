@@ -15,7 +15,8 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:seed": "tsx src/lib/db/seed.ts",
-		"improvements": "node scripts/list-improvements.js"
+		"improvements": "node scripts/list-improvements.js",
+		"generate:tracking-plan": "tsx scripts/generate-tracking-plan.ts"
 	},
 	"dependencies": {
 		"@cloudflare/vite-plugin": "^1.13.8",

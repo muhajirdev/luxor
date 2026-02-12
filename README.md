@@ -12,6 +12,7 @@ All project decisions, standards, and context are documented:
 - **[Product Marketing Context](./docs/product-marketing-context.md)** - Positioning, target audience, and value proposition
 - **[User Flows](./docs/user-flows.md)** - User journey documentation and interaction flows
 - **[API Documentation](./docs/api.md)** - API endpoint reference
+- **[Analytics Tracking](./docs/analytics-tracking.md)** - Type-safe analytics implementation and tracking plan
 - **[TODO List](./TODO.md)** - Development tasks and priorities
 
 ## Features
@@ -22,6 +23,7 @@ All project decisions, standards, and context are documented:
 - **Nested Table UI** - Expandable collections showing all associated bids
 - **Role-Based Controls** - Different permissions for collection owners vs bidders
 - **Dark Premium Design** - Blur.io-inspired aesthetic with amber accents
+- **Type-Safe Analytics** - 100% TypeScript-autocomplete for event tracking with auto-generated docs
 
 ## Key Decisions
 
@@ -132,6 +134,9 @@ pnpm preview          # Build and preview locally
 
 # Project Management
 pnpm improvements     # List all future improvements ranked by priority
+
+# Analytics
+pnpm generate:tracking-plan  # Generate tracking-plan.md from tracker.ts
 ```
 
 ## API Documentation

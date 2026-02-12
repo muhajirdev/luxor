@@ -49,12 +49,16 @@ const CollectionTableRoot = memo(function CollectionTableRoot({ children }: Coll
 })
 
 export const CollectionTable = memo(function CollectionTable() {
-  const { filteredCollections } = useCollections()
+  const { filteredCollections, refreshCollections } = useCollections()
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const handleToggle = useCallback((id: string) => {
     setExpandedId(prev => prev === id ? null : id)
   }, [])
+
+  const handleBidPlaced = useCallback(() => {
+    refreshCollections()
+  }, [refreshCollections])
 
   return (
     <CollectionTableRoot>
@@ -75,6 +79,7 @@ export const CollectionTable = memo(function CollectionTable() {
             collectionId={collection.id}
             isExpanded={expandedId === collection.id}
             onToggle={handleToggle}
+            onBidPlaced={handleBidPlaced}
           />
         ))}
       </TableBody>
@@ -86,17 +91,19 @@ interface CollectionTableItemProps {
   collectionId: string
   isExpanded: boolean
   onToggle: (id: string) => void
+  onBidPlaced: () => void
 }
 
-const CollectionTableItem = memo(function CollectionTableItem({ 
-  collectionId, 
+const CollectionTableItem = memo(function CollectionTableItem({
+  collectionId,
   isExpanded,
-  onToggle
+  onToggle,
+  onBidPlaced
 }: CollectionTableItemProps) {
   return (
     <>
-      <CollectionRow 
-        collectionId={collectionId} 
+      <CollectionRow
+        collectionId={collectionId}
         isExpanded={isExpanded}
         onToggle={onToggle}
       />
@@ -104,7 +111,7 @@ const CollectionTableItem = memo(function CollectionTableItem({
         <tr className="bg-[#0a0a0a] animate-expandIn">
           <td colSpan={8} className="p-0">
             <div className="border-t border-[#1a1a1a]">
-              <BidHistoryTable collectionId={collectionId} />
+              <BidHistoryTable collectionId={collectionId} onBidPlaced={onBidPlaced} />
             </div>
           </td>
         </tr>
