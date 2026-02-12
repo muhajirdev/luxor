@@ -24,8 +24,8 @@ export function Header() {
         </Link>
 
         {/* Search Bar - Editorial */}
-        <div className="hidden flex-1 px-12 md:block">
-          <div className="relative max-w-md">
+        <div className="hidden flex-1 px-8 lg:px-12 xl:px-16 md:block">
+          <div className="relative max-w-md mx-auto">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4a4a4a]" />
             <input
               type="text"
@@ -35,36 +35,37 @@ export function Header() {
           </div>
         </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-8 md:flex">
-          <Link
-            to="/collections"
-            className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
-          >
-            Catalog
-          </Link>
-          <Link
-            to="/how-it-works"
-            className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
-          >
-            Guide
-          </Link>
-        </nav>
+        {/* Desktop Navigation + CTA Group */}
+        <div className="hidden items-center gap-8 lg:gap-12 md:flex">
+          <nav className="flex items-center gap-6 lg:gap-8">
+            <Link
+              to="/collections"
+              className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
+            >
+              Catalog
+            </Link>
+            <Link
+              to="/how-it-works"
+              className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
+            >
+              Guide
+            </Link>
+          </nav>
 
-        {/* Desktop CTA */}
-        <div className="hidden items-center gap-6 md:flex">
-          <Link
-            to="/login"
-            className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
-          >
-            Sign In
-          </Link>
-          <Link
-            to="/register"
-            className="btn-primary"
-          >
-            Begin Collecting
-          </Link>
+          <div className="flex items-center gap-4 lg:gap-6">
+            <Link
+              to="/login"
+              className="label text-[#8a8a8a] transition-colors duration-300 hover:text-[#fafaf9]"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="btn-primary"
+            >
+              Begin Collecting
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -110,13 +111,13 @@ export function Header() {
             <div className="h-px bg-[#1a1a1a]" />
 
             <div className="space-y-4">
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="block font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
-              >
-                Sign In
-              </Link>
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="block font-editorial text-lg text-[#b0b0b0] transition-colors hover:text-[#fafaf9]"
+                >
+                  Login
+                </Link>
               <Link
                 to="/register"
                 onClick={() => setIsOpen(false)}

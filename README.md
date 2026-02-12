@@ -2,6 +2,17 @@
 
 A premium full-stack bidding marketplace where serious collectors bid with confidence. Built with TanStack Start, PostgreSQL, and Tailwind CSS.
 
+## Documentation
+
+All project decisions, standards, and context are documented:
+
+- **[Project State](./docs/project-state.md)** - Current progress, roadmap, and architecture decisions
+- **[Brand Voice](./docs/brand-voice.md)** - Verbal identity, tone, and messaging guidelines
+- **[Design Guidelines](./docs/design-guidelines.md)** - Visual design standards (AI-optimized for quick MVP)
+- **[Product Marketing Context](./docs/product-marketing-context.md)** - Positioning, target audience, and value proposition
+- **[User Flows](./docs/user-flows.md)** - User journey documentation and interaction flows
+- **[TODO List](./TODO.md)** - Development tasks and priorities
+
 ## Features
 
 - **Collection Management** - Create, edit, and manage collectible item listings
@@ -10,6 +21,17 @@ A premium full-stack bidding marketplace where serious collectors bid with confi
 - **Nested Table UI** - Expandable collections showing all associated bids
 - **Role-Based Controls** - Different permissions for collection owners vs bidders
 - **Dark Premium Design** - Blur.io-inspired aesthetic with amber accents
+
+## Key Decisions
+
+### Design System (MVP)
+Using [Design Guidelines](./docs/design-guidelines.md) optimized for rapid AI-assisted development. A full design system will be built post-MVP.
+
+### Type-Safe Architecture
+**No REST APIs.** Using TanStack Start server functions for 100% end-to-end type safety from database to UI.
+
+### Database
+PostgreSQL (Neon) with explicit query builders via Drizzle ORM for type-safe data access.
 
 ## Tech Stack
 
@@ -161,6 +183,22 @@ bidding-app/
 - Type-safe by default
 - Headless design works with shadcn/ui
 
+## Future Improvements
+
+Key improvements planned (see [full list](./docs/future-improvements.md)):
+
+- **Cloudflare Hyperdrive** - Connect database via Hyperdrive to reduce latency and enable intelligent caching for faster queries
+- **Full Design System** - Build comprehensive design system beyond the current AI-optimized guidelines
+- **Advanced Analytics** - Add bidding analytics and market insights for collectors
+- **Real-time Updates** - Implement WebSocket or SSE for real-time bid notifications
+- **Feature-Based Architecture** - Move from layer-centric (`/components`, `/hooks`) to feature-centric structure (`/features/collections`, `/features/bidding`) for better code colocation and maintainability
+- **Monorepo** - Consider migrating to monorepo structure (Turborepo/Nx) when codebase scales significantly
+
+### Current Tracking
+
+- **PostHog** - User analytics, funnel tracking, and feature usage insights
+- **Sentry** - Error tracking and performance monitoring
+
 ## Testing
 
 Run the test suite:
@@ -195,12 +233,6 @@ Ensure these are set in your deployment environment:
 3. Use explicit Drizzle query builders (not `db.query`)
 4. Add tests for new features
 5. Run `pnpm test` and `pnpm build` before committing
-
-## Documentation
-
-- [Project State](./docs/project-state.md) - Current progress and roadmap
-- [Product Marketing Context](./docs/product-marketing-context.md) - Brand guidelines and messaging
-- [TODO List](./TODO.md) - Development tasks and priorities
 
 ## License
 

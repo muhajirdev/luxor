@@ -144,21 +144,69 @@ const provenance = ['from a prominent estate', 'with documented history', 'from 
 const features = ['intricate detailing', 'original hardware', 'handcrafted construction', 'signed by maker', 'period-appropriate materials', 'all original components'];
 const uses = ['the serious collector', 'investment purposes', 'display in a curated home', 'adding to an established collection'];
 
-// Image URLs from Unsplash for collectibles
-const imageUrls = [
-  'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80',
-  'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=800&q=80',
-  'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&q=80',
-  'https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=800&q=80',
-  'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=800&q=80',
-  'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=800&q=80',
-  'https://images.unsplash.com/photo-1616422323326-17b5e584d95b?w=800&q=80',
-  'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&q=80',
-  'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800&q=80',
-  'https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=800&q=80',
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
-  'https://images.unsplash.com/photo-1513519245088-0e12902e35a6?w=800&q=80',
-];
+// Category-specific image URLs from Unsplash
+const categoryImagesMap: Record<string, string[]> = {
+  'vintage-watches': [
+    'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80', // Rolex on wrist
+    'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=800&q=80', // Luxury watch closeup
+    'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80', // Watch collection
+  ],
+  'fine-art': [
+    'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80', // Abstract art
+    'https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=800&q=80', // Art gallery
+    'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=800&q=80', // Painting closeup
+  ],
+  'antique-furniture': [
+    'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80', // Vintage furniture
+    'https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=80', // Antique chair
+    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80', // Classic interior
+  ],
+  'collectible-coins': [
+    'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=800&q=80', // Gold coins
+    'https://images.unsplash.com/photo-1609726494499-27d3e942456c?w=800&q=80', // Gold coins stack
+    'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=800&q=80', // Bitcoin/coins
+  ],
+  'vintage-jewelry': [
+    'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80', // Jewelry
+    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80', // Vintage ring
+    'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=800&q=80', // Gold necklace
+  ],
+  'sports-memorabilia': [
+    'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&q=80', // Baseball
+    'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=800&q=80', // Basketball
+    'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800&q=80', // Soccer ball
+  ],
+  'vintage-cameras': [
+    'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80', // Vintage camera
+    'https://images.unsplash.com/photo-1500634245200-e5245c7574ef?w=800&q=80', // Old camera
+    'https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?w=800&q=80', // Film camera
+  ],
+  'mid-century-modern': [
+    'https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=80', // Mid-century chair
+    'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80', // Modern furniture
+    'https://images.unsplash.com/photo-1532323544230-7191fd51bc1b?w=800&q=80', // Eames style
+  ],
+  'art-deco': [
+    'https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&q=80', // Art deco interior
+    'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&q=80', // Geometric pattern
+    'https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=80', // Classic design
+  ],
+  'rare-books': [
+    'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80', // Stack of books
+    'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&q=80', // Old books
+    'https://images.unsplash.com/photo-1524578271613-d550eacf6090?w=800&q=80', // Library books
+  ],
+  'musical-instruments': [
+    'https://images.unsplash.com/photo-1550985616-10810253b84d?w=800&q=80', // Guitar
+    'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80', // Instruments
+    'https://images.unsplash.com/photo-1460039230329-eb070fc6c77c?w=800&q=80', // Piano keys
+  ],
+  'luxury-handbags': [
+    'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80', // Designer bag
+    'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&q=80', // Luxury handbag
+    'https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?w=800&q=80', // Fashion bag
+  ],
+};
 
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -243,12 +291,16 @@ async function seed() {
       
       // 10% chance of being sold
       const status = Math.random() < 0.1 ? 'sold' : 'active';
-      
+
+      // Get category-specific image
+      const categoryImagesForItem = categoryImagesMap[template.category] || categoryImagesMap['vintage-watches'];
+      const imageUrl = randomElement(categoryImagesForItem) as string;
+
       collectionsData.push({
         name,
         slug,
         description: generateDescription(name),
-        imageUrl: randomElement(imageUrls),
+        imageUrl,
         stock: randomInt(1, 5),
         startingPrice: price,
         ownerId: owner.id,

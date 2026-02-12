@@ -57,6 +57,53 @@ luxor-bids/
 
 ## Features
 
+### Enhanced Authentication
+**Priority:** High
+**Status:** Not Started
+
+**Forgot Password Flow:**
+- Password reset via email
+- Secure token-based reset links
+- Time-limited reset tokens (1 hour expiry)
+- Rate limiting on reset requests
+
+**Google OAuth Integration:**
+- One-click sign in with Google
+- Automatic account linking
+- Profile photo sync
+- Secure OAuth 2.0 flow
+
+**Implementation Notes:**
+- Store reset tokens in separate table with expiry
+- Use Resend or SendGrid for transactional emails
+- OAuth requires Google Cloud Console setup
+- Update users table to support OAuth provider IDs
+
+**New Tables:**
+```typescript
+password_resets {
+  id: uuid (PK)
+  user_id: uuid (FK → users.id)
+  token_hash: varchar(255)  -- bcrypt hashed token
+  expires_at: timestamp
+  used: boolean default false
+  created_at: timestamp
+}
+
+oauth_accounts {
+  id: uuid (PK)
+  user_id: uuid (FK → users.id)
+  provider: varchar(50)  -- 'google', 'github', etc.
+  provider_account_id: varchar(255)
+  access_token: text
+  refresh_token: text
+  expires_at: timestamp
+  created_at: timestamp
+}
+```
+
+---
+
 ### Real-Time Updates
 **Priority:** High
 **Status:** Not Started

@@ -9,122 +9,23 @@ import {
   Zap,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import {
+  getTrendingCollectionsServer,
+  getFeaturedCollectionsServer,
+  getRecentSoldServer,
+} from '@/lib/server/collections.server'
 
 export const Route = createFileRoute('/')({
   component: LandingPage,
+  loader: async () => {
+    const [trending, featured, recentSold] = await Promise.all([
+      getTrendingCollectionsServer(),
+      getFeaturedCollectionsServer(),
+      getRecentSoldServer(),
+    ])
+    return { trending, featured, recentSold }
+  },
 })
-
-// Mock data for trending collections - editorial styling
-const trendingCollections = [
-  {
-    id: 1,
-    lot: '042',
-    name: '1959 Gibson Les Paul Standard',
-    seller: 'Vintage Guitars Co.',
-    image: 'https://images.unsplash.com/photo-1550985616-10810253b84d?w=800&h=600&fit=crop',
-    startingPrice: 1500000,
-    currentBid: 2450000,
-    bidCount: 12,
-    timeLeft: '2d 4h',
-    status: 'active',
-    category: 'Instruments',
-  },
-  {
-    id: 2,
-    lot: '043',
-    name: 'Rolex Submariner 1967',
-    seller: 'Timepiece Treasury',
-    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=600&fit=crop',
-    startingPrice: 1200000,
-    currentBid: 1850000,
-    bidCount: 8,
-    timeLeft: '5d 12h',
-    status: 'active',
-    category: 'Timepieces',
-  },
-  {
-    id: 3,
-    lot: '044',
-    name: 'Original Banksy "Girl with Balloon"',
-    seller: 'Modern Art Vault',
-    image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&h=600&fit=crop',
-    startingPrice: 8000000,
-    currentBid: 12000000,
-    bidCount: 3,
-    timeLeft: '1d 8h',
-    status: 'active',
-    category: 'Fine Art',
-  },
-  {
-    id: 4,
-    lot: '045',
-    name: 'First Edition Harry Potter Set',
-    seller: 'Rare Books Exchange',
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&h=600&fit=crop',
-    startingPrice: 250000,
-    currentBid: 450000,
-    bidCount: 23,
-    timeLeft: '3d 2h',
-    status: 'active',
-    category: 'Rare Books',
-  },
-  {
-    id: 5,
-    lot: '046',
-    name: 'Vintage Leica M3 Camera',
-    seller: 'Classic Optics',
-    image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&h=600&fit=crop',
-    startingPrice: 180000,
-    currentBid: 320000,
-    bidCount: 15,
-    timeLeft: '4d 6h',
-    status: 'active',
-    category: 'Photography',
-  },
-]
-
-const featuredCollections = [
-  {
-    id: 1,
-    lot: '038',
-    name: 'Estate Jewelry Collection',
-    creator: 'Luxury Estate Sales',
-    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&h=900&fit=crop',
-    itemCount: 47,
-    totalValue: 850000,
-    featured: true,
-  },
-  {
-    id: 2,
-    lot: '039',
-    name: 'Mid-Century Modern Furniture',
-    creator: 'Design Heritage',
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&h=450&fit=crop',
-    itemCount: 23,
-    totalValue: 420000,
-    featured: false,
-  },
-  {
-    id: 3,
-    lot: '040',
-    name: 'Vintage Vinyl Records',
-    creator: 'Spin City Archives',
-    image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=600&h=450&fit=crop',
-    itemCount: 156,
-    totalValue: 180000,
-    featured: false,
-  },
-  {
-    id: 4,
-    lot: '041',
-    name: 'Classic Car Memorabilia',
-    creator: 'Automotive History',
-    image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&h=450&fit=crop',
-    itemCount: 34,
-    totalValue: 290000,
-    featured: false,
-  },
-]
 
 function formatPrice(cents: number): string {
   const dollars = cents / 100
@@ -141,10 +42,10 @@ import type { Variants } from 'framer-motion'
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
+    transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] as const }
   }
 }
 
@@ -161,14 +62,39 @@ const staggerContainer: Variants = {
 
 const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scale: 1,
-    transition: { duration: 1, ease: [0.4, 0, 0.2, 1] }
+    transition: { duration: 1, ease: [0.4, 0, 0.2, 1] as const }
   }
 }
 
 function LandingPage() {
+  const { trending, featured, recentSold } = Route.useLoaderData()
+
+  const featuredCollections = featured.length > 0 
+    ? featured 
+    : [{
+        id: 'default',
+        lot: '001',
+        name: 'Premium Collection',
+        creator: 'Luxor Bids',
+        image: 'https://images.unsplash.com/photo-1550985616-10810253b84d?w=800&h=600&fit=crop',
+        itemCount: 0,
+        totalValue: 0,
+        featured: true,
+      }]
+
+  const trendingCollections = trending.length > 0 
+    ? trending 
+    : []
+
+  const recentSoldItems = recentSold.length > 0
+    ? recentSold.map(item => `${item.name} — ${item.price}`)
+    : ['No recent sales yet']
+
+  const heroCollection = featuredCollections[0]
+
   return (
     <div className="min-h-screen bg-[#000000] relative">
       <Header />
@@ -180,7 +106,7 @@ function LandingPage() {
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1615184697985-c9bde1b07da7?w=1920&h=1080&fit=crop')`,
+              backgroundImage: `url('${heroCollection.image}')`,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/95 to-[#000000]/60" />
@@ -191,7 +117,7 @@ function LandingPage() {
         <div className="relative mx-auto max-w-[1600px] px-6 lg:px-12">
           <div className="grid min-h-[calc(100vh-5rem)] grid-cols-1 lg:grid-cols-12 items-center gap-12 py-12 lg:py-0">
             {/* Left Content - Editorial Typography */}
-            <motion.div 
+            <motion.div
               className="lg:col-span-7"
               initial="hidden"
               animate="visible"
@@ -206,45 +132,53 @@ function LandingPage() {
 
               {/* Editorial Details */}
               <motion.div variants={fadeInUp} className="mb-6 flex items-center gap-4">
-                <span className="lot-number-lg">LOT 001</span>
+                <span className="lot-number-lg">LOT {heroCollection.lot}</span>
                 <div className="h-px w-12 bg-[#2a2a2a]" />
-                <span className="date-stamp">CLOSING IN 2D 14H</span>
+                <span className="date-stamp">FEATURED COLLECTION</span>
               </motion.div>
 
               {/* Main Headline */}
-              <motion.h1 
+              <motion.h1
                 variants={fadeInUp}
                 className="headline-xl text-[#fafaf9] mb-8"
               >
-                1954 Fender
+                {heroCollection.name.split(' ').slice(0, 2).join(' ')}
                 <br />
-                <span className="font-display italic font-light">Stratocaster</span>
+                <span className="font-display italic font-light">
+                  {heroCollection.name.split(' ').slice(2).join(' ') || 'Collection'}
+                </span>
               </motion.h1>
 
               {/* Description */}
-              <motion.p 
+              <motion.p
                 variants={fadeInUp}
                 className="body-xl text-[#b0b0b0] max-w-xl mb-12"
               >
-                An all-original 1954 Fender Stratocaster in sunburst finish. 
-                Serial number 0123. Includes original case and documentation. 
-                One of the most sought-after vintage guitars in existence.
+                Premium collectible from {heroCollection.creator}. 
+                Join {heroCollection.itemCount} other collectors bidding on this exceptional piece. 
+                Authenticated and ready for your collection.
               </motion.p>
 
               {/* Stats - Editorial Style */}
               <motion.div variants={fadeInUp} className="mb-12">
-                <div className="grid grid-cols-3 gap-8 max-w-lg">
+                <div className="flex gap-8 lg:gap-12 max-w-xl">
                   <div className="border-l border-[#2a2a2a] pl-6">
-                    <div className="label-sm text-[#4a4a4a] mb-2">Current Bid</div>
-                    <div className="font-display text-3xl lg:text-4xl font-semibold text-[#fafaf9] tabular">$125,000</div>
+                    <div className="label-sm text-[#4a4a4a] mb-2">Starting Price</div>
+                    <div className="font-display text-3xl lg:text-4xl font-semibold text-[#fafaf9] tabular">
+                      {formatPrice(heroCollection.totalValue)}
+                    </div>
                   </div>
                   <div className="border-l border-[#2a2a2a] pl-6">
-                    <div className="label-sm text-[#4a4a4a] mb-2">Bids</div>
-                    <div className="font-display text-3xl lg:text-4xl font-semibold text-[#fafaf9] tabular">18</div>
+                    <div className="label-sm text-[#4a4a4a] mb-2">Active Bids</div>
+                    <div className="font-display text-3xl lg:text-4xl font-semibold text-[#fafaf9] tabular">
+                      {heroCollection.itemCount}
+                    </div>
                   </div>
                   <div className="border-l border-[#2a2a2a] pl-6">
-                    <div className="label-sm text-[#4a4a4a] mb-2">Watchers</div>
-                    <div className="font-display text-3xl lg:text-4xl font-semibold text-[#fafaf9] tabular">247</div>
+                    <div className="label-sm text-[#4a4a4a] mb-2">Seller</div>
+                    <div className="font-display text-3xl lg:text-4xl font-semibold text-[#fafaf9] tabular">
+                      Verified
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -268,7 +202,7 @@ function LandingPage() {
             </motion.div>
 
             {/* Right Content - Featured Item Image */}
-            <motion.div 
+            <motion.div
               className="lg:col-span-5 relative"
               initial="hidden"
               animate="visible"
@@ -277,25 +211,27 @@ function LandingPage() {
               <div className="editorial-frame">
                 <div className="editorial-frame-inner aspect-[4/5]">
                   <img
-                    src="https://images.unsplash.com/photo-1550985616-10810253b84d?w=800&h=1000&fit=crop"
-                    alt="1954 Fender Stratocaster"
+                    src={heroCollection.image}
+                    alt={heroCollection.name}
                     className="h-full w-full object-cover"
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 bg-gradient-to-t from-[#000000] via-[#000000]/80 to-transparent">
                     <div className="flex items-end justify-between">
                       <div>
-                        <div className="label-sm text-[#b87333] mb-2">Featured Item</div>
-                        <div className="font-display text-xl text-[#fafaf9]">Vintage Instruments</div>
+                        <div className="label-sm text-[#b87333] mb-2">Featured Collection</div>
+                        <div className="font-display text-xl text-[#fafaf9]">{heroCollection.creator}</div>
                       </div>
                       <div className="text-right">
                         <div className="label-sm text-[#4a4a4a]">Est. Value</div>
-                        <div className="font-display text-2xl text-[#fafaf9] tabular">$150k</div>
+                        <div className="font-display text-2xl text-[#fafaf9] tabular">
+                          {formatPrice(heroCollection.totalValue)}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               {/* Floating Badge */}
               <div className="absolute -top-4 -right-4 lg:-right-8 z-10">
                 <div className="flex items-center gap-2 bg-[#0a0a0a] border border-[#1a1a1a] px-4 py-2">
@@ -311,7 +247,7 @@ function LandingPage() {
         </div>
 
         {/* Bottom Marquee */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-0 left-0 right-0 border-t border-[#1a1a1a] bg-[#000000]/80 backdrop-blur-sm py-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -321,7 +257,7 @@ function LandingPage() {
             <div className="flex items-center gap-8 overflow-hidden">
               <span className="label-sm text-[#4a4a4a] whitespace-nowrap">Recently Sold:</span>
               <div className="flex gap-12 animate-marquee">
-                {['1957 Gibson Les Paul — $89,500', 'Patek Philippe 5711 — $245,000', 'Banksy "Love is in the Bin" — $18.5M', 'First Edition Watchmen — $12,400'].map((item) => (
+                {recentSoldItems.map((item) => (
                   <span key={item} className="label text-[#8a8a8a] whitespace-nowrap">
                     {item}
                   </span>
@@ -335,7 +271,7 @@ function LandingPage() {
       {/* FEATURED COLLECTIONS - Editorial Magazine Grid */}
       <section className="relative py-24 lg:py-32">
         <div className="noise-overlay" />
-        
+
         <div className="relative mx-auto max-w-[1600px] px-6 lg:px-12">
           {/* Section Header */}
           <motion.div
@@ -348,13 +284,13 @@ function LandingPage() {
             <motion.div variants={fadeInUp} className="section-marker mb-6">
               From The Collection
             </motion.div>
-            
+
             <motion.div variants={fadeInUp} className="flex items-end justify-between">
               <h2 className="headline-lg text-[#fafaf9]">
                 Featured
                 <span className="font-display italic font-light"> Collections</span>
               </h2>
-              
+
               <Link
                 to="/collections"
                 className="hidden md:flex items-center gap-2 label text-[#8a8a8a] transition-colors hover:text-[#fafaf9]"
@@ -375,8 +311,8 @@ function LandingPage() {
               variants={scaleIn}
               className="lg:col-span-7 lg:row-span-2"
             >
-              <Link 
-                to="/collections" 
+              <Link
+                to="/collections"
                 className="group block relative h-full"
               >
                 <div className="editorial-frame h-full">
@@ -388,20 +324,20 @@ function LandingPage() {
                       className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/40 to-transparent" />
-                    
+
                     <div className="absolute top-6 left-6">
                       <div className="lot-number">LOT {featuredCollections[0].lot}</div>
                     </div>
-                    
+
                     <div className="absolute bottom-0 left-0 right-0 p-8">
                       <div className="label-sm text-[#b87333] mb-2">{featuredCollections[0].creator}</div>
                       <h3 className="font-display text-3xl lg:text-4xl font-semibold text-[#fafaf9] mb-4">
                         {featuredCollections[0].name}
                       </h3>
-                      
+
                       <div className="flex items-center gap-8">
                         <div>
-                          <div className="label-sm text-[#4a4a4a]">Items</div>
+                          <div className="label-sm text-[#4a4a4a]">Bids</div>
                           <div className="font-display text-xl text-[#fafaf9]">{featuredCollections[0].itemCount}</div>
                         </div>
                         <div>
@@ -426,7 +362,7 @@ function LandingPage() {
                 transition={{ delay: index * 0.1 }}
                 className="lg:col-span-5"
               >
-                <Link 
+                <Link
                   to="/collections"
                   className="group block relative"
                 >
@@ -438,21 +374,21 @@ function LandingPage() {
                         alt={collection.name}
                         className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                       />
-                      
+
                       <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/50 to-transparent" />
-                      
+
                       <div className="absolute top-4 left-4">
                         <div className="lot-number-sm">LOT {collection.lot}</div>
                       </div>
-                      
+
                       <div className="absolute bottom-0 left-0 right-0 p-6">
                         <div className="label-sm text-[#b87333] mb-1">{collection.creator}</div>
                         <h3 className="font-display text-xl font-semibold text-[#fafaf9] mb-2">
                           {collection.name}
                         </h3>
-                        
+
                         <div className="flex items-center gap-4">
-                          <span className="label-sm text-[#8a8a8a]">{collection.itemCount} items</span>
+                          <span className="label-sm text-[#8a8a8a]">{collection.itemCount} bids</span>
                           <span className="text-[#4a4a4a]">·</span>
                           <span className="label-sm text-[#fafaf9] tabular">{formatPrice(collection.totalValue)}</span>
                         </div>
@@ -465,7 +401,7 @@ function LandingPage() {
           </div>
 
           {/* Mobile View All Link */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -496,7 +432,7 @@ function LandingPage() {
             <motion.div variants={fadeInUp} className="section-marker mb-6">
               Current Auctions
             </motion.div>
-            
+
             <motion.div variants={fadeInUp} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
                 <h2 className="headline-md text-[#fafaf9]">
@@ -504,11 +440,11 @@ function LandingPage() {
                   <span className="font-display italic font-light"> Lots</span>
                 </h2>
                 <p className="body-md text-[#8a8a8a] mt-4 max-w-lg">
-                  Curated selection of the week's most sought-after collectibles. 
+                  Curated selection of the week's most sought-after collectibles.
                   Each item verified, authenticated, and ready for your collection.
                 </p>
               </div>
-              
+
               <div className="flex gap-2">
                 {['24h', '7d', '30d'].map((period) => (
                   <button
@@ -546,69 +482,77 @@ function LandingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {trendingCollections.map((collection, index) => (
-                    <motion.tr
-                      key={collection.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group cursor-pointer"
-                    >
-                      <td className="text-center">
-                        <span className="lot-number">{collection.lot}</span>
-                      </td>
-                      <td>
-                        <div className="flex items-center gap-4">
-                          <div className="h-14 w-14 overflow-hidden border border-[#1a1a1a]">
-                            <img
-                              src={collection.image}
-                              alt={collection.name}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
+                  {trendingCollections.length > 0 ? (
+                    trendingCollections.map((collection, index) => (
+                      <motion.tr
+                        key={collection.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }}
+                        className="group cursor-pointer"
+                      >
+                        <td className="text-center">
+                          <span className="lot-number">{collection.lot}</span>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-4">
+                            <div className="h-14 w-14 overflow-hidden border border-[#1a1a1a]">
+                              <img
+                                src={collection.image}
+                                alt={collection.name}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            </div>
+                            <div>
+                              <div className="font-display text-lg text-[#fafaf9]">{collection.name}</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-display text-lg text-[#fafaf9]">{collection.name}</div>
+                        </td>
+                        <td className="text-right">
+                          <span className="label-sm text-[#8a8a8a]">{collection.category}</span>
+                        </td>
+                        <td className="text-right">
+                          <span className="price-starting tabular">{formatPrice(collection.startingPrice)}</span>
+                        </td>
+                        <td className="text-right">
+                          <span className="price-current tabular">{formatPrice(collection.currentBid)}</span>
+                        </td>
+                        <td className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <BarChart3 className="h-4 w-4 text-[#4a4a4a]" />
+                            <span className="font-mono text-sm text-[#b0b0b0] tabular">{collection.bidCount}</span>
                           </div>
-                        </div>
+                        </td>
+                        <td>
+                          <span className="body-sm text-[#8a8a8a]">{collection.seller}</span>
+                        </td>
+                        <td className="text-right">
+                          <div className="flex items-center justify-end gap-2 text-[#b87333]">
+                            <Clock className="h-4 w-4" />
+                            <span className="font-mono text-sm tabular">{collection.timeLeft}</span>
+                          </div>
+                        </td>
+                        <td className="text-center">
+                          <span className="status-badge status-live">
+                            {collection.status}
+                          </span>
+                        </td>
+                      </motion.tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={9} className="text-center py-12 text-[#8a8a8a]">
+                        No active auctions at the moment. Check back soon!
                       </td>
-                      <td className="text-right">
-                        <span className="label-sm text-[#8a8a8a]">{collection.category}</span>
-                      </td>
-                      <td className="text-right">
-                        <span className="price-starting tabular">{formatPrice(collection.startingPrice)}</span>
-                      </td>
-                      <td className="text-right">
-                        <span className="price-current tabular">{formatPrice(collection.currentBid)}</span>
-                      </td>
-                      <td className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <BarChart3 className="h-4 w-4 text-[#4a4a4a]" />
-                          <span className="font-mono text-sm text-[#b0b0b0] tabular">{collection.bidCount}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="body-sm text-[#8a8a8a]">{collection.seller}</span>
-                      </td>
-                      <td className="text-right">
-                        <div className="flex items-center justify-end gap-2 text-[#b87333]">
-                          <Clock className="h-4 w-4" />
-                          <span className="font-mono text-sm tabular">{collection.timeLeft}</span>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <span className="status-badge status-live">
-                          {collection.status}
-                        </span>
-                      </td>
-                    </motion.tr>
-                  ))}
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -628,7 +572,7 @@ function LandingPage() {
       {/* FEATURES SECTION - Editorial Spread */}
       <section className="relative py-24 lg:py-32 bg-[#0a0a0a]">
         <div className="noise-overlay" />
-        
+
         <div className="relative mx-auto max-w-[1600px] px-6 lg:px-12">
           {/* Section Header */}
           <motion.div
@@ -641,16 +585,16 @@ function LandingPage() {
             <motion.div variants={fadeInUp} className="section-marker mb-6">
               The Luxor Difference
             </motion.div>
-            
+
             <motion.div variants={fadeInUp} className="max-w-3xl">
               <h2 className="headline-lg text-[#fafaf9] mb-6">
                 Built for
                 <span className="font-display italic font-light"> Serious Collectors</span>
               </h2>
-              
+
               <p className="body-xl text-[#8a8a8a]">
-                Everything you need to discover, bid on, and acquire exceptional 
-                collectibles with confidence and transparency. We've reimagined 
+                Everything you need to discover, bid on, and acquire exceptional
+                collectibles with confidence and transparency. We've reimagined
                 the auction experience for the modern collector.
               </p>
             </motion.div>
@@ -705,21 +649,21 @@ function LandingPage() {
                   <div className="absolute -top-2 -left-2 font-display text-6xl lg:text-7xl font-bold text-[#1a1a1a] opacity-50">
                     {feature.number}
                   </div>
-                  
+
                   <div className="relative">
                     <div className="w-12 h-12 flex items-center justify-center border border-[#1a1a1a] mb-6 group-hover:border-[#b87333] transition-colors duration-300">
                       <feature.icon className="h-5 w-5 text-[#b87333]" />
                     </div>
-                    
+
                     <div className="mb-6">
                       <div className="font-display text-4xl font-bold text-[#fafaf9] tabular">{feature.stat}</div>
                       <div className="label-sm text-[#b87333] mt-1">{feature.statLabel}</div>
                     </div>
-                    
+
                     <h3 className="font-display text-xl font-semibold text-[#fafaf9] mb-3">
                       {feature.title}
                     </h3>
-                    
+
                     <p className="body-sm text-[#8a8a8a]">
                       {feature.description}
                     </p>
@@ -753,7 +697,7 @@ function LandingPage() {
               <div className="h-px w-12 bg-[#b87333]" />
             </motion.div>
 
-            <motion.h2 
+            <motion.h2
               variants={fadeInUp}
               className="headline-xl text-[#fafaf9] mb-8"
             >
@@ -762,11 +706,11 @@ function LandingPage() {
               <span className="font-display italic font-light">Collecting?</span>
             </motion.h2>
 
-            <motion.p 
+            <motion.p
               variants={fadeInUp}
               className="body-xl text-[#8a8a8a] max-w-2xl mx-auto mb-12"
             >
-              Join thousands of collectors who've discovered extraordinary items 
+              Join thousands of collectors who've discovered extraordinary items
               on Luxor. Create your free account today and start bidding with confidence.
             </motion.p>
 
@@ -779,7 +723,7 @@ function LandingPage() {
                 Create Free Account
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
-              
+
               <Link
                 to="/collections"
                 className="btn-secondary"
@@ -822,7 +766,7 @@ function LandingPage() {
 
                 <p className="body-md text-[#8a8a8a] max-w-sm mb-8"
                 >
-                  Premium marketplace for physical collectibles. Estate sales, vintage 
+                  Premium marketplace for physical collectibles. Estate sales, vintage
                   items, art, and rare finds. Where serious collectors bid with confidence.
                 </p>
 
@@ -863,7 +807,7 @@ function LandingPage() {
                       >
                         {section.title}
                       </h3>
-                      
+
                       <ul className="space-y-3"
                       >
                         {section.links.map((link) => (
@@ -894,14 +838,14 @@ function LandingPage() {
 
               <div className="flex items-center gap-8"
               >
-                <span className="label-sm text-[#4a4a4a] cursor-pointer hover:text-[#8a8a8a]"
+                <Link to="/privacy" className="label-sm text-[#4a4a4a] cursor-pointer hover:text-[#8a8a8a]"
                 >
                   Privacy Policy
-                </span>
-                <span className="label-sm text-[#4a4a4a] cursor-pointer hover:text-[#8a8a8a]"
+                </Link>
+                <Link to="/terms" className="label-sm text-[#4a4a4a] cursor-pointer hover:text-[#8a8a8a]"
                 >
                   Terms of Service
-                </span>
+                </Link>
               </div>
             </div>
           </div>
