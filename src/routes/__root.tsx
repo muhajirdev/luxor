@@ -1,6 +1,7 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 import { getCurrentUser } from '@/lib/server/auth.server'
+import { NotFoundComponent } from '@/components/NotFound'
 
 import appCss from '../styles.css?url'
 
@@ -45,6 +46,7 @@ export const Route = createRootRoute({
     return { user: userResult.success ? userResult.user : null }
   },
 
+  notFoundComponent: NotFoundComponent,
   shellComponent: RootDocument,
 })
 

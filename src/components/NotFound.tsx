@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Search, Compass } from 'lucide-react'
 import { Header } from '@/components/Header'
@@ -33,16 +33,12 @@ const scaleIn: Variants = {
   }
 }
 
-export const Route = createFileRoute('/$')({
-  component: NotFoundPage,
-})
-
-function NotFoundPage() {
+export function NotFoundComponent() {
   return (
     <div className="min-h-screen bg-[#000000] relative">
       <Header />
 
-      <main className="relative min-h-screen flex items-center justify-center pt-20">
+      <main className="relative min-h-screen flex items-center justify-center pt-32 lg:pt-40">
         {/* Background Pattern */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-[#0a0a0a] to-[#000000]" />
@@ -95,7 +91,7 @@ function NotFoundPage() {
                 variants={fadeInUp}
                 className="body-xl text-[#8a8a8a] max-w-lg mx-auto lg:mx-0 mb-12"
               >
-                The page you're looking for doesn't exist or has been relocated. 
+                The page you're looking for doesn't exist or has been relocated.
                 Explore our current catalog or return to the main auction floor.
               </motion.p>
 
@@ -212,5 +208,3 @@ function NotFoundPage() {
     </div>
   )
 }
-
-export default NotFoundPage
