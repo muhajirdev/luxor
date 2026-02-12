@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import { db } from '@/lib/db'
 import { collections, users, bids } from '@/lib/db/schema'
-import { eq, desc, count, max } from 'drizzle-orm'
+import { eq, desc, count, max, ilike, or } from 'drizzle-orm'
 
 export const getTrendingCollectionsServer = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -108,13 +109,28 @@ function formatPrice(cents: number): string {
   return `$${dollars.toFixed(2)}`
 }
 
-// Collections list with pagination
+// Collections list with pagination and search
+const getCollectionsListSchema = z.object({
+  search: z.string().optional(),
+  page: z.number().default(1),
+  limit: z.number().default(20),
+})
+
 export const getCollectionsListServer = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    const page = 1
-    const limit = 20
+  .inputValidator(getCollectionsListSchema)
+  .handler(async ({ data }) => {
+    const { search, page, limit } = data
     const offset = (page - 1) * limit
 
+    // Build search condition
+    const searchCondition = search && search.trim()
+      ? or(
+          ilike(collections.name, `%${search}%`),
+          ilike(collections.description, `%${search}%`)
+        )
+      : undefined
+
+    // Get collections with search filter
     const result = await db
       .select({
         collection: collections,
@@ -125,13 +141,18 @@ export const getCollectionsListServer = createServerFn({ method: 'GET' })
       .from(collections)
       .leftJoin(users, eq(collections.ownerId, users.id))
       .leftJoin(bids, eq(collections.id, bids.collectionId))
+      .where(searchCondition)
       .groupBy(collections.id, users.id)
       .orderBy(desc(collections.createdAt))
       .limit(limit)
       .offset(offset)
 
-    // Get total count for pagination
-    const countResult = await db.select({ count: count() }).from(collections)
+    // Get total count with same search filter
+    const countQuery = db.select({ count: count() }).from(collections)
+    if (searchCondition) {
+      countQuery.where(searchCondition)
+    }
+    const countResult = await countQuery
     const totalCount = Number(countResult[0].count)
 
     return {
@@ -156,6 +177,7 @@ export const getCollectionsListServer = createServerFn({ method: 'GET' })
         totalCount,
         totalPages: Math.ceil(totalCount / limit),
       },
+      search: search || null,
     }
   })
 

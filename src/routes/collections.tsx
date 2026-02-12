@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useSearch, useNavigate } from '@tanstack/react-router'
+import { z } from 'zod'
 import { Header } from '@/components/Header'
 import { getCollectionsListServer } from '@/lib/server/collections.server'
 import {
@@ -8,10 +9,19 @@ import {
   Pagination,
 } from '@/components/collections'
 
+const searchSchema = z.object({
+  q: z.string().optional(),
+  page: z.number().optional(),
+})
+
 export const Route = createFileRoute('/collections')({
   component: CollectionsPage,
-  loader: async () => {
-    return await getCollectionsListServer()
+  validateSearch: searchSchema,
+  loaderDeps: ({ search }) => search,
+  loader: async ({ deps }) => {
+    const searchQuery = deps.q || ''
+    const page = deps.page || 1
+    return await getCollectionsListServer({ data: { search: searchQuery, page, limit: 20 } })
   },
 })
 

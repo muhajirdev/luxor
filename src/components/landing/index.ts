@@ -1,0 +1,6 @@
+export { HeroSection } from './HeroSection'
+export { FeaturedGrid } from './FeaturedGrid'
+export { TrendingTable } from './TrendingTable'
+export { FeaturesSection } from './FeaturesSection'
+export { CTASection } from './CTASection'
+export { Footer } from './Footer'
