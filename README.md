@@ -26,7 +26,8 @@ See [Getting Started Guide](./docs/getting-started.md) for detailed setup instru
 ## Documentation
 
 - **[Getting Started](./docs/getting-started.md)** - Installation and setup
-- **[Architecture Decisions](./docs/architecture-decisions.md)** - Why TanStack Start, PostgreSQL, and key design choices
+- **[Key Decisions](./docs/key-decisions.md)** - Unique choices and patterns
+- **[Architecture Decisions](./docs/architecture-decisions.md)** - Why TanStack Start, PostgreSQL, and Cloudflare
 - **[Development Tools](./docs/development-tools.md)** - React Scan and debugging
 - **[Deployment](./docs/deployment.md)** - Deploy to Cloudflare Workers
 - **[API Documentation](./docs/api.md)** - API endpoint reference

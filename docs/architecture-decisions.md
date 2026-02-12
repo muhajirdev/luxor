@@ -1,44 +1,26 @@
 # Architecture Decisions
 
-## Why TanStack Start?
-- Workspace already configured for TanStack Start
-- RPC-style server functions eliminate REST boilerplate
-- File-based routing is intuitive
-- Demonstrates modern React framework knowledge
+## Core Framework: TanStack Start
+- **RPC-style server functions**: Eliminates REST/GraphQL boilerplate while maintaining 100% type safety.
+- **File-based routing**: Provides an intuitive structure for the application.
+- **Modern React**: Leverages the latest React patterns (Suspense, Transitions) for a smooth UX.
 
-## Why PostgreSQL (Neon)?
-- Production-grade database with serverless scaling
-- Better concurrent write handling than SQLite
-- Fits well with Cloudflare Workers deployment
+## Platform: Cloudflare Workers
+We chose Cloudflare Workers as our deployment platform for its global reach and performance.
 
-## Why Custom Authentication?
-Simple for MVP — we can migrate to managed auth (Clerk/Auth0) later if needed.
+- **Edge Computing**: Logic runs at the edge, closest to our users, resulting in minimal latency.
+- **Serverless**: Scales automatically without manual infrastructure management.
+- **Durable Objects (Future)**: We plan to migrate real-time bidding to **Cloudflare Durable Objects**. This will provide a stateful, low-latency coordination point for each auction, enabling true WebSocket-based real-time updates without the overhead of traditional server-side state management.
 
-## Why TanStack Form?
-- Native TanStack ecosystem integration
-- Fine-grained reactivity for better performance
-- Type-safe by default
-- Headless design works with shadcn/ui
+## Database: PostgreSQL (Neon)
+- **Serverless Scaling**: Matches the serverless nature of Cloudflare Workers.
+- **ACID Compliance**: Crucial for ensuring integrity in bidding transactions.
+- **Neon Branching**: Allows us to create isolated database environments for testing and development.
 
-## Key Decisions
+## Form Management: TanStack Form
+- **Type-safe by default**: Integrated deeply with Zod for schema validation.
+- **Performance**: Fine-grained reactivity ensures only the changed fields re-render.
+- **Headless**: Works seamlessly with our custom shadcn/ui styling.
 
-### Component Architecture Pattern
-We use **State Colocation + ID-based Selection + Composition** for complex UI components:
-
-- **Flexibility**: Composition lets you rearrange, style, or swap pieces independently  
-- **No Prop Drilling**: State colocation + context gets data where it's needed
-- **Performance**: Primitive props work with default `React.memo`—no custom comparison needed
-
-See [architecture.md](./architecture.md) and ["Composition Is All You Need" by Fernando Rojo](https://www.youtube.com/watch?v=4KvbVq3Eg5w).
-
-### Design System (MVP)
-Using [Design Guidelines](./design-guidelines.md) optimized for rapid AI-assisted development. A full design system will be built post-MVP.
-
-### Type-Safe Architecture
-**No REST APIs.** Using TanStack Start server functions for 100% end-to-end type safety from database to UI.
-
-### Type-Safe Event Tracking
-Analytics events are defined as a TypeScript constant with type-inferred properties. TypeScript provides autocomplete for event names and validates property types at compile time. Documentation is auto-generated from the code, ensuring it never goes out of sync.
-
-### Database
-PostgreSQL (Neon) with explicit query builders via Drizzle ORM for type-safe data access.
+## Authentication
+- **Session-based**: We use database-backed sessions with HTTP-only cookies for maximum security and control over the login lifecycle.
